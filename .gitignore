@@ -1,0 +1,15 @@
+/bin-java
+/.settings
+/html-template
+lib/
+*.swf
+*.html
+*.css
+*.js
+/.actionScriptProperties
+/.classpath
+/.flexProperties
+/.granite
+/.project
+/env.properties
+/ivy.xml
