@@ -17,7 +17,8 @@
     <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
 
     
-    <!-- Configuration of Spring 3 Bean Validation -->
+    <!-- Configuration of Spring 3 Bean Validation 
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+    -->
     
 </beans>

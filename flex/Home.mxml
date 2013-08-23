@@ -12,54 +12,77 @@
    	
     <fx:Script>
         <![CDATA[
-            import mx.collections.ArrayCollection;
-            
-            import org.granite.tide.events.TideResultEvent;
-            import org.granite.tide.events.TideFaultEvent;
-            
-            import org.xreport.entities.Welcome;
-            import org.xreport.services.WelcomeService;
+			import mx.collections.ArrayCollection;
+			
+			import org.granite.tide.events.TideFaultEvent;
+			import org.granite.tide.events.TideResultEvent;
+			import org.xreport.entities.Welcome;
+			import org.xreport.services.WelcomeService;
+			import org.xreport.services.XReportService;
             
             
             [Inject]
             public var welcomeService:WelcomeService;
-            
+
+			[Inject]
+			public var xReportService:XReportService;
+
             [Bindable]
             public var allWelcomes:ArrayCollection;
-            
+
+			[Bindable]
+			public var stList:ArrayCollection;
+
             private function findAllResult(event:TideResultEvent):void {
                 allWelcomes = ArrayCollection(event.result);
             }
-            
+
+
+			/*
             [Observer("org.granite.tide.data.persist.Welcome")]
             public function welcomeAdded(welcome:Welcome):void {
                 allWelcomes.addItem(welcome);
             }
+			*/
             
             private function hello(name:String):void {
                 welcomeService.hello(iName.text, helloResult, helloFault)
             }
             
             private function helloResult(event:TideResultEvent):void {
+				allWelcomes.addItem( event.result as Welcome);
                 iName.text = "";
             }
             
             private function helloFault(event:TideFaultEvent):void {
                 lMessage.text = event.fault.faultString;
             }
-        ]]>
+
+			private function getST():void {
+				xReportService.getSourceTypes(getSTResult, helloFault)
+			}
+
+			private function getSTResult(event:TideResultEvent):void {
+				stList = ArrayCollection(event.result);
+			}
+
+		]]>
     </fx:Script>
     
     <s:VGroup paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" width="800">
         <s:HGroup id="fHello">
             <s:TextInput id="iName"/>
-            <s:Button id="bHello" label="Welcome!" click="hello(iName.text)"/>
+			<s:Button id="bHello" label="Welcome!" click="hello(iName.text)"/>
+			<s:Button label="Get source types" click="getST()"/>
         </s:HGroup>
-    
+		
         <s:Label id="lMessage"/>
         
-        <s:List id="dgList" dataProvider="{allWelcomes}" labelField="message" width="100%" height="200"
-            creationComplete="welcomeService.findAll(findAllResult)"/>
+		<s:HGroup>
+			<s:List id="dgList" dataProvider="{allWelcomes}" labelField="message" width="100%" height="200"
+					creationComplete="welcomeService.findAll(findAllResult)"/>
+			<s:List id="lstList" dataProvider="{stList}" labelField="name" width="100%" height="200"/>
+		</s:HGroup>
     </s:VGroup>
 
 </s:VGroup>

@@ -11,12 +11,15 @@
    	
     <fx:Script>
         <![CDATA[
-            
-            import org.granite.tide.spring.Spring;
-            import org.granite.tide.spring.Identity;
-            import org.granite.tide.Tide;
-            import org.granite.tide.service.DefaultServiceInitializer;
-            import org.granite.tide.data.DataObserver;
+			import mx.controls.Alert;
+			
+			import org.granite.tide.Tide;
+			import org.granite.tide.data.DataObserver;
+			import org.granite.tide.events.TideFaultEvent;
+			import org.granite.tide.events.TideResultEvent;
+			import org.granite.tide.service.DefaultServiceInitializer;
+			import org.granite.tide.spring.Identity;
+			import org.granite.tide.spring.Spring;
             
             [Bindable] [Inject]
             public var identity:Identity;
@@ -25,14 +28,16 @@
                 // Define service endpoint resolver
                 Tide.getInstance().getContext().serviceInitializer = new DefaultServiceInitializer('/XReport');
                 
+				/*
                 // Configuration for data push observer subscribed upon login/logout
                 // Remove if not using DataObserver
                 Tide.getInstance().addComponent("welcomeTopic", DataObserver);
                 Tide.getInstance().addEventObserver("org.granite.tide.login", "welcomeTopic", "subscribe");
                 Tide.getInstance().addEventObserver("org.granite.tide.logout", "welcomeTopic", "unsubscribe");
-                
+                */
+				
                 // Check current authentication state
-                identity.isLoggedIn();
+                identity.isLoggedIn(autoLogin);
             }
             
             [Observer("org.granite.tide.login")]
@@ -46,6 +51,22 @@
                 removeElementAt(0);
                 addElement(new Login());
             }
+
+			private function autoLogin(event:TideResultEvent):void {//event:TideFaultEvent):void {
+				//autologin as user:user
+				if(!identity.loggedIn) identity.login('user', 'user', loginResult, loginFault);
+			}
+
+			
+			private function loginResult(event:TideResultEvent):void {
+				//do nothig
+				//Alert.show('Loged in');
+			}
+			
+			private function loginFault(event:TideFaultEvent):void {
+				Alert.show('Login failed: '+ event.fault.faultString);
+			}
+
         ]]>
     </fx:Script>
 

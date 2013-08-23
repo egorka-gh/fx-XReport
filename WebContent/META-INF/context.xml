@@ -1,0 +1,36 @@
+<Context>
+
+	<Resource name="smSKONT08" 
+		auth="Container" 
+		type="javax.sql.DataSource" 
+		factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
+		username="supermag"
+		password="fhfvbc1999"
+		driverClassName="oracle.jdbc.driver.OracleDriver"
+		url="jdbc:oracle:thin:@192.168.30.1:1521:SKONT08"
+	        maxIdle="10" 
+	        maxWait="10000" 
+		removeAbandoned="true" 
+		removeAbandonedTimeout="60" 
+		logAbandoned="true"
+		testOnBorrow="true"
+		testOnReturn="true"
+		validationQuery="SELECT 1 FROM DUAL"/>
+		
+	<Resource name="ukmUKM4"
+		auth="Container" 
+		type="javax.sql.DataSource"
+	    maxActive="100" maxIdle="30" maxWait="10000"
+	    username="Report" password="jnxtnyjcnm" 
+		driverClassName="com.mysql.jdbc.Driver"
+	    url="jdbc:mysql://192.168.33.1:3306/ukmserver"/>
+
+	<Resource name="dataSource"
+		auth="Container" 
+		type="javax.sql.DataSource"
+	    maxActive="100" maxIdle="30" maxWait="10000"
+	    username="Report" password="jnxtnyjcnm" 
+		driverClassName="com.mysql.jdbc.Driver"
+	    url="jdbc:mysql://192.168.33.1:3306/xrep"/>
+
+</Context>

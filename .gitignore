@@ -6,6 +6,7 @@ lib/
 *.html
 *.css
 *.js
+*.hid
 /.actionScriptProperties
 /.classpath
 /.flexProperties
@@ -13,3 +14,4 @@ lib/
 /.project
 /env.properties
 /ivy.xml
+/build

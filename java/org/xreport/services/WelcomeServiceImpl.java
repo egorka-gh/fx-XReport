@@ -1,5 +1,6 @@
 package org.xreport.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 import java.text.SimpleDateFormat;
@@ -20,15 +21,16 @@ import org.xreport.entities.Welcome;
 
 
 @Service
-@DataEnabled(topic="welcomeTopic", publish=PublishMode.ON_SUCCESS)
 public class WelcomeServiceImpl implements WelcomeService {
 
+	/*
     @PersistenceContext
     private EntityManager entityManager;
-    
+    */
 
     @Transactional
     public Welcome hello(String name) {
+    	/*
         if (name == null || name.trim().length() == 0)
             throw new RuntimeException("Name cannot be null or empty");
         
@@ -46,12 +48,22 @@ public class WelcomeServiceImpl implements WelcomeService {
             welcome.setMessage("Welcome " + name + " (" + sdf.format(new Date()) + ")");
             entityManager.persist(welcome);
         }
+        */
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Welcome welcome = new Welcome();
+        welcome.setName(name);
+        welcome.setMessage("Welcome " + name + " (" + sdf.format(new Date()) + ")");
         return welcome;
     }
     
     
     @Transactional(readOnly=true)
     public List<Welcome> findAll() {
-        return entityManager.createQuery("select w from Welcome w order by w.name", Welcome.class).getResultList();
+        Welcome welcome = new Welcome();
+        welcome.setName("Empty list");
+        welcome.setMessage("Dumy list");
+        ArrayList<Welcome> res = new ArrayList<Welcome>();
+        res.add(welcome);
+        return res;
     }
 }
