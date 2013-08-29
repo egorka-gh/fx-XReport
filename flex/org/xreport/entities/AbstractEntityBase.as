@@ -11,8 +11,10 @@ package org.xreport.entities {
     import flash.utils.IDataInput;
     import flash.utils.IDataOutput;
     import flash.utils.IExternalizable;
+    import flash.utils.getQualifiedClassName;
     import mx.core.IUID;
     import mx.data.utils.Managed;
+    import mx.utils.UIDUtil;
     import org.granite.collections.IPersistentCollection;
     import org.granite.meta;
     import org.granite.tide.IEntity;
@@ -72,17 +74,19 @@ package org.xreport.entities {
             return _id;
         }
 
-        public function set uid(value:String):void {
-            _uid = value;
-        }
-        public function get uid():String {
-            return _uid;
-        }
-
         [Version]
         [Bindable(event="propertyChange")]
         public function get version():Number {
             return _version;
+        }
+
+        public function set uid(value:String):void {
+            // noop...
+        }
+        public function get uid():String {
+            if (isNaN(_id))
+                return UIDUtil.createUID();
+            return getQualifiedClassName(this) + "#[" + String(_id) + "]";
         }
 
         meta function merge(em:IEntityManager, obj:*):void {

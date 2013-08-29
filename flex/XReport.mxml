@@ -40,6 +40,7 @@
                 identity.isLoggedIn(autoLogin);
             }
             
+			
             [Observer("org.granite.tide.login")]
             public function login():void {
                 removeElementAt(0);

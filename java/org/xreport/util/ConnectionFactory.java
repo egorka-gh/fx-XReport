@@ -1,4 +1,4 @@
-package org.xreport.services;
+package org.xreport.util;
 
 import java.sql.Connection;
 import java.sql.SQLException;

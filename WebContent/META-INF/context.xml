@@ -1,5 +1,6 @@
-<Context>
-
+<Context aliases="/result=D:/Buffer/XReport/result" cachingAllowed="false" antiResourceLocking="false">
+	<Manager pathname="" />
+	
 	<Resource name="smSKONT08" 
 		auth="Container" 
 		type="javax.sql.DataSource" 
@@ -23,7 +24,7 @@
 	    maxActive="100" maxIdle="30" maxWait="10000"
 	    username="Report" password="jnxtnyjcnm" 
 		driverClassName="com.mysql.jdbc.Driver"
-	    url="jdbc:mysql://192.168.33.1:3306/ukmserver"/>
+	    url="jdbc:mysql://192.168.33.1:3306/ukmserver?generateSimpleParameterMetadata=true"/>
 
 	<Resource name="dataSource"
 		auth="Container" 
@@ -31,6 +32,6 @@
 	    maxActive="100" maxIdle="30" maxWait="10000"
 	    username="Report" password="jnxtnyjcnm" 
 		driverClassName="com.mysql.jdbc.Driver"
-	    url="jdbc:mysql://192.168.33.1:3306/xrep"/>
+	    url="jdbc:mysql://192.168.33.1:3306/xrep?generateSimpleParameterMetadata=true"/>
 
 </Context>

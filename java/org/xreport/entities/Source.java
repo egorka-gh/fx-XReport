@@ -4,20 +4,24 @@ import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Table(name="source_type")
-public class SourceType extends AbstractExternalizedBean{
+@Table(name="source")
+public class Source extends AbstractExternalizedBean {
     private static final long serialVersionUID = 1L;
 
     @Id
     @Column(name="id")
-    private int id;
+    private String id;
+
+    @Column(name="type")
+    private int type;
+    
     @Column(name="name")
     private String name;
     
-	public int getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 
 	}
@@ -27,5 +31,12 @@ public class SourceType extends AbstractExternalizedBean{
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
 	}
 }

@@ -15,3 +15,4 @@ lib/
 /env.properties
 /ivy.xml
 /build
+/WebContent/reports

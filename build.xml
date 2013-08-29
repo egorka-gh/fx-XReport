@@ -93,7 +93,7 @@
             file="${flex.src.dir}/${project.name}.mxml"
             output="${flex.bin.dir}/${project.name}.swf"
             keep-generated-actionscript="false"
-            debug="false"
+            debug="true"
             use-network="false">
 
             <source-path path-element="${flex.home}/frameworks"/>
