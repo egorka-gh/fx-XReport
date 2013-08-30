@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<s:VGroup
+<s:Group
 	xmlns:fx="http://ns.adobe.com/mxml/2009"
 	xmlns:s="library://ns.adobe.com/flex/spark"
 	xmlns:mx="library://ns.adobe.com/flex/mx"
@@ -13,14 +13,21 @@
     <fx:Script>
         <![CDATA[
 			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
 			
 			import org.granite.tide.events.TideFaultEvent;
 			import org.granite.tide.events.TideResultEvent;
+			import org.xreport.entities.Parameter;
 			import org.xreport.entities.Report;
+			import org.xreport.entities.ReportResult;
 			import org.xreport.entities.Source;
 			import org.xreport.entities.Welcome;
+			import org.xreport.itemrenderer.ParamDateIR;
+			import org.xreport.itemrenderer.ParamPeriodIR;
+			import org.xreport.itemrenderer.ParamStringIR;
 			import org.xreport.services.WelcomeService;
 			import org.xreport.services.XReportService;
+			import org.xreport.util.ArrayUtil;
 			
             
 			[Inject]
@@ -58,40 +65,26 @@
 			private function onReportLst(event:TideResultEvent):void {
 				reportLst= ArrayCollection(event.result);
 			}
-
 			
+			[Bindable]
+			private var curReport:Report; 
 			private function getParamLst():void {
-				var rep:Report;
-				if (lstReports.selectedItem) rep=lstReports.selectedItem as Report;
-				if(!rep) return;
-				xReportService.getReportParams(rep.id,onParamLst, helloFault)
+				paramLst=null;
+				if (lstReports.selectedItem){
+					curReport=lstReports.selectedItem as Report;
+				}else{
+					curReport= null;
+					return;
+				}
+				xReportService.getReportParams(curReport.id,onParamLst, helloFault)
 			}
 			private function onParamLst(event:TideResultEvent):void {
 				paramLst= ArrayCollection(event.result);
 			}
 
-			/*
-            private function findAllResult(event:TideResultEvent):void {
-                allWelcomes = ArrayCollection(event.result);
-            }
-
-            [Observer("org.granite.tide.data.persist.Welcome")]
-            public function welcomeAdded(welcome:Welcome):void {
-                allWelcomes.addItem(welcome);
-            }
-            
-            private function hello(name:String):void {
-                welcomeService.hello(iName.text, helloResult, helloFault)
-            }
-            
-            private function helloResult(event:TideResultEvent):void {
-				allWelcomes.addItem( event.result as Welcome);
-                iName.text = "";
-            }
-			*/
-            
             private function helloFault(event:TideFaultEvent):void {
-                lMessage.text = event.fault.faultString;
+                //lMessage.text = event.fault.faultString;
+				Alert.show(event.fault.faultString);
             }
 
 			private function getST():void {
@@ -111,49 +104,105 @@
 			}
 			private function runReport():void {
 				var src:Source;
-				if (!ddSource.selectedItem) return; 
+				if (!ddSource.selectedItem || !curReport || !paramLst) return; 
 				src=ddSource.selectedItem as Source;
+				/*
 				var rep:Report;
 				if (lstReports.selectedItem) rep=lstReports.selectedItem as Report;
 				if(!rep || !paramLst) return;
-				rep.parameters=paramLst.source;
-				xReportService.buildReport(rep, src.id ,onBuildReport, helloFault)
+				*/
+				curReport.parameters=paramLst.source;
+				curReport.isRunning=true;
+				xReportService.buildReport(curReport, src.id ,onBuildReport, onBuildReportFault)
 			}
 			private function onBuildReport(event:TideResultEvent):void {
-				var url:String=String(event.result);
-				lMessage.text=url;
-				var urlRequest:URLRequest = new URLRequest(url);
-				navigateToURL(urlRequest,'_new');
+				var result:ReportResult=event.result as ReportResult;
+				if (!result) return; //alert?
+				if(result.id) releaseReport(result.id);
+				if(result.hasError){
+					Alert.show(result.error);
+				}
+				if(result.url){
+					var urlRequest:URLRequest = new URLRequest(result.url);
+					navigateToURL(urlRequest,'_new');
+				}
+			}
+			private function onBuildReportFault(event:TideFaultEvent):void {
+				helloFault(event);
 			}
 
+			private function releaseReport(id:String):void{
+				var r:Report=ArrayUtil.searchItem('id',id,reportLst.source) as Report;
+				if(r) r.isRunning=false;
+			}
 			
+			
+			private function paramRenderer(item:Object):ClassFactory {
+				var p:Parameter= item as Parameter;
+				if(!p) return null;
+				var classFactory:ClassFactory;
+				switch(p.id){
+					case Parameter.PARAM_PERIOD:{
+						classFactory = new ClassFactory(ParamPeriodIR);
+						break;
+					}
+					case Parameter.PARAM_DATE:{
+						classFactory = new ClassFactory(ParamDateIR);
+						break;
+					}
+					default:{
+						classFactory = new ClassFactory(ParamStringIR);
+						break;
+					}
+				}
+				return classFactory;
+			}
 		]]>
     </fx:Script>
-    
-    <s:VGroup paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" width="800">
-        <!--<s:HGroup id="fHello">
-            <s:TextInput id="iName"/>
-			<s:Button id="bHello" label="Welcome!" click="hello(iName.text)"/>
-			<s:Button label="Get source types" click="getST()"/>
-        </s:HGroup>-->
-		<s:DropDownList id="ddSource" dataProvider="{sourceLst}" labelField="name" creationComplete="{getSourceLst()}" change="ddSource_changeHandler(event)"/>
-        <s:Label id="lMessage" color="#ff0000" maxDisplayedLines="-1" width="100%"/>
-		<s:HGroup height="100%">
-			<!--<s:List id="dgList" dataProvider="{allWelcomes}" labelField="message" width="100%" height="200"
-					creationComplete="welcomeService.findAll(findAllResult)"/>-->
+	
+	<s:Rect top="0" left="0" right="0" bottom="0">
+		<s:fill>
+			<s:SolidColor color="#cccccc"/>
+		</s:fill>
+	</s:Rect>
+
+    <s:VGroup top="0" left="0" right="0" bottom="0"
+		paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" >
+		<s:HGroup gap="5" verticalAlign="baseline">
+			<s:Label text="Источник"/>
+			<s:DropDownList id="ddSource" dataProvider="{sourceLst}" labelField="name" creationComplete="{getSourceLst()}" change="ddSource_changeHandler(event)"/>
+		</s:HGroup>
+        <!--<s:Label id="lMessage" color="#ff0000" maxDisplayedLines="-1" width="100%"/>-->
+		<s:HGroup height="100%" width="100%">
 			<s:List id="lstReports" dataProvider="{reportLst}" labelField="name" change="{getParamLst()}"
-					height="100%"/>
-			<s:Scroller height="100%" width="300">
-				<s:VGroup gap="10" >
-					<s:DataGroup dataProvider="{paramLst}" itemRenderer="itemrenderer.ParamPeriodIR">
-						<s:layout>
-							<s:VerticalLayout gap="5"/>
-						</s:layout>
-					</s:DataGroup>
-					<s:HGroup width="100%" horizontalAlign="right">
-						<s:Button id="btRunRep" label="Run" visible="{lstReports.selectedIndex!=-1}" click="btRunRep_clickHandler(event)"/>	
-					</s:HGroup>
-				</s:VGroup> 
+					height="100%" width="200"/>
+			<s:Scroller height="100%" width="100%">
+				<s:Group>
+					<s:Group visible="{paramLst!=null}">
+						<s:Rect top="0" left="0" right="0" bottom="0" >
+							<s:fill>
+								<s:SolidColor color="#ffffff"/>
+							</s:fill>
+							<s:stroke>
+								<s:SolidColorStroke color="0"/>
+							</s:stroke>
+						</s:Rect>
+						<s:VGroup gap="10" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10">
+							<s:Label text="Параметры отчета" fontWeight="bold"/>
+							<s:DataGroup dataProvider="{paramLst}" itemRendererFunction="paramRenderer">
+								<s:layout>
+									<s:VerticalLayout gap="5"/>
+								</s:layout>
+							</s:DataGroup>
+							<s:HGroup width="100%" horizontalAlign="right">
+								<s:Label text="Выполнение отчета" visible="{curReport &amp;&amp; curReport.isRunning}"/>
+								<s:Button id="btRunRep" icon="assets/xls.png" 
+										  enabled="{!curReport.isRunning}" 
+										  click="btRunRep_clickHandler(event)" width="40"/>
+							</s:HGroup>
+						</s:VGroup> 
+					</s:Group>
+				</s:Group>
 			</s:Scroller>
 				
 			
@@ -161,4 +210,4 @@
 		</s:HGroup>
     </s:VGroup>
 
-</s:VGroup>
+</s:Group>

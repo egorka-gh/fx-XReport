@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import org.w3c.dom.Document;
 import org.xreport.constants.Constants;
 import org.xreport.entities.Parameter;
 import org.xreport.entities.Report;
+import org.xreport.entities.ReportResult;
 import org.xreport.entities.Source;
 import org.xreport.entities.SourceType;
 import org.xreport.util.ConnectionFactory;
@@ -112,8 +112,12 @@ public class XReportServiceImpl implements XReportService {
 	}
 
 	@Override
-	public String buildReport(final Report report, String source) {
-		if(report == null) return "err:null report";
+	public ReportResult buildReport(final Report report, String source) {
+		ReportResult result= new ReportResult();
+		if(report == null){
+			result.assignError("null report");
+			return result;
+		}
 		HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
 		
 		String outPath=(String)ctx.getServletContext().getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);
@@ -125,15 +129,16 @@ public class XReportServiceImpl implements XReportService {
 		outputUrl=Constants.URL_REPORT_BASE_URL+"/"+outputUrl+"/"+report.getId()+ Constants.REPORT_EXT;
 		Date dts= new Date();
 		outputUrl+="?"+dts.getTime();
+		result.setUrl(outputUrl);
 		
 		String outputName = outPath+report.getId()+ Constants.REPORT_EXT;
 		File outFile = new File(outputName);
 		
-		OutputStream outputStream;
+		OutputStream outputStream=null;
 		try {
 			outputStream = new FileOutputStream(outFile);
 		} catch (FileNotFoundException e) {
-			return "err: Can't open: "+outFile;
+			result.assignError("Can't open: "+outFile);
 		}
 		
         String templateName=rootPath+report.getId()+ Constants.REPORT_EXT;
@@ -152,7 +157,8 @@ public class XReportServiceImpl implements XReportService {
         	reporter.fillOutputWithException(outputTemplate, e1);
             documentWriter.writeDocument(outputTemplate, outputStream);
             e1.printStackTrace();
-            return outputUrl;
+            result.assignError(e1.getMessage());
+            return result;
         }
 
 		InputStream xmlStream;
@@ -171,7 +177,8 @@ public class XReportServiceImpl implements XReportService {
         	reporter.fillOutputWithException(outputTemplate, e1);
             documentWriter.writeDocument(outputTemplate, outputStream);
             e1.printStackTrace();
-            return outputUrl;
+            result.assignError(e1.getMessage());
+            return result;
         }
         Connection cnn=null;
         try {
@@ -186,17 +193,19 @@ public class XReportServiceImpl implements XReportService {
         	reporter.fillOutputWithException(outputTemplate, e1);
             documentWriter.writeDocument(outputTemplate, outputStream);
             e1.printStackTrace();
+            result.assignError(e1.getMessage());
+            return result;
         }
 
         try {
 			if(cnn!=null) cnn.close();
-	        outputStream.close();
+	        if(outputStream!=null) outputStream.close();
 	        inputStream.close();
 	        xmlStream.close();
 		} catch (Exception e) {
 		}
         
-        return outputUrl;
+        return result;
         /*
 		//4 debug
 		String res="id:"+report.getId()+";";

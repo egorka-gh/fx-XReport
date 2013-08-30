@@ -72,7 +72,7 @@
     </fx:Script>
 
     <s:controlBarContent>
-        <s:Label text="GraniteDS Application testtidespring" fontSize="18" fontWeight="bold" width="100%"/>
+        <s:Label text="Bigzz Отчеты" fontSize="18" fontWeight="bold" width="100%"/>
         <s:Button label="Logout" click="identity.logout();"/>
     </s:controlBarContent>
  

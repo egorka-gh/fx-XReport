@@ -10,5 +10,6 @@ package org.xreport.entities {
     [Bindable]
     [RemoteClass(alias="org.xreport.entities.Report")]
     public class Report extends ReportBase {
+		public var isRunning:Boolean=false;
     }
 }
