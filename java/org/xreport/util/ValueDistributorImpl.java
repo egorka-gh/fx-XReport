@@ -24,6 +24,8 @@ public class ValueDistributorImpl implements ValueDistributor {
 					values.put("pto", dateFormat.format(p.getValTo()));
 				}else if(p.getId().equals(ParameterType.PDate.getType())){
 					values.put(p.getId().toLowerCase(), dateFormat.format(p.getValDate()));
+				}else{
+					values.put(p.getId().toLowerCase(), p.getValString());
 				}
 			}
 		}

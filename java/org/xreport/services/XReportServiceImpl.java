@@ -118,6 +118,8 @@ public class XReportServiceImpl implements XReportService {
 			result.assignError("null report");
 			return result;
 		}
+		result.setId(report.getId());
+		
 		HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
 		
 		String outPath=(String)ctx.getServletContext().getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);

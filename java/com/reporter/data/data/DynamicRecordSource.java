@@ -175,7 +175,8 @@ public class DynamicRecordSource extends GenericRecordSource {
         ResultSetMetaData metaData = resultSet.getMetaData();
         int colNum = metaData.getColumnCount();
         for (int i = 1; i <= colNum; i++){
-            String colName = metaData.getColumnName(i);
+            //String colName = metaData.getColumnName(i);
+        	String colName = metaData.getColumnLabel(i);
             XLSCellValue colVal = new XLSCellValue(resultSet.getObject(i), toReportType(metaData.getColumnType(i)));
             setFieldValue(colName.toLowerCase(), colVal);
         }

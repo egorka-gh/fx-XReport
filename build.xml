@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="XReport" default="build.war" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="XReport" default="build.war">
 	
 	<!--
 	 ! Load configuration properties from the 'env.properties' file.
@@ -10,45 +10,10 @@
 	<property environment="env"/>
 	<property name="war.dir" value="${build.dir}/${project.name}"/>
 
-	<!-- 
-	 ! Ivy setup 
-	 !-->
-	<property name="ivy.install.version" value="2.2.0" />
-	<condition property="ivy.home" value="${env.IVY_HOME}">
-		<isset property="env.IVY_HOME" />
-	</condition>
-	<property name="ivy.home" value="${user.home}/.ant" />
-	<property name="ivy.jar.dir" value="${ivy.home}/lib" />
-	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
-
-	<target name="ivy.download" unless="offline">
-		<mkdir dir="${ivy.jar.dir}"/>
-	    <!-- download Ivy from web site so that it can be used even without any special installation -->
-	    <get src="http://repo2.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" 
-	             dest="${ivy.jar.file}" usetimestamp="true"/>
-	</target>
-
-	<target name="ivy.init" depends="ivy.download">
-		<!-- try to load ivy here from ivy home, in case the user has not already dropped
-	    	 it into ant's lib dir (note that the latter copy will always take precedence).
-	         We will not fail as long as local lib dir exists (it may be empty) and
-	         ivy is in at least one of ant's lib dir or the local lib dir. -->
-	    <path id="ivy.lib.path">
-	    	<fileset dir="${ivy.jar.dir}" includes="*.jar"/>
-	    </path>
-	    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
-	</target>
-	
-	<target name="ivy.resolve" depends="ivy.init">
-		<ivy:retrieve pattern="lib/[artifact].[ext]" conf="*" type="jar,swc"/>
-	</target>
-
-	
-	
 	<!--
 	 ! Build WAR.
 	 !-->
-	<target name="build.war" depends="ivy.resolve">
+	<target name="build.war">
 
 		<copy todir="WebContent/WEB-INF/lib">
 			<fileset dir="lib" includes="*.jar">
@@ -83,7 +48,7 @@
 	<!--
 	 ! Compile Flex sources and create a HTML wrapper.
 	 !-->	
-	<target name="build.flex" depends="ivy.resolve">
+	<target name="build.flex">
 		
 		<property name="FLEX_HOME" value="${flex.home}"/>
 		<taskdef resource="flexTasks.tasks" classpath="${flex.home}/ant/lib/flexTasks.jar" />
@@ -93,7 +58,7 @@
             file="${flex.src.dir}/${project.name}.mxml"
             output="${flex.bin.dir}/${project.name}.swf"
             keep-generated-actionscript="false"
-            debug="true"
+            debug="false"
             use-network="false">
 
             <source-path path-element="${flex.home}/frameworks"/>

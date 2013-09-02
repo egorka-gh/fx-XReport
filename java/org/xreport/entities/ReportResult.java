@@ -34,13 +34,7 @@ public class ReportResult extends AbstractExternalizedBean {
 	}
 
 	public void assignError(String error) {
-		if(error==null || error.length()==0){
-			hasError=false;
-			this.error = "";
-		}else{
-			hasError=true;
-			this.error = error;
-		}
+		hasError=true;
 		this.error = error;
 	}
 
