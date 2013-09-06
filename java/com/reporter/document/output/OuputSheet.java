@@ -211,6 +211,12 @@ public class OuputSheet {
      * @param row
      */
     public void setRowHeightDefault(int row) {
+    	/*
+    	int i=0;
+    	if(row>19 && row<25){
+    		i++;
+    	}
+    	*/
         rowHeights.remove(new Integer(row));
         rowHeights.put(new Integer(row), (short)-1);
     }

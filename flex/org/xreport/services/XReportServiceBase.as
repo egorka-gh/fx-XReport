@@ -40,6 +40,17 @@ package org.xreport.services {
                 throw new Error("Illegal argument to remote call (last argument should be Function or ITideResponder): " + resultHandler);
         }    
         
+        public function buildReport(arg0:Report, arg1:String, resultHandler:Object = null, faultHandler:Function = null):AsyncToken {
+            if (faultHandler != null)
+                return callProperty("buildReport", arg0, arg1, resultHandler, faultHandler) as AsyncToken;
+            else if (resultHandler is Function || resultHandler is ITideResponder)
+                return callProperty("buildReport", arg0, arg1, resultHandler) as AsyncToken;
+            else if (resultHandler == null)
+                return callProperty("buildReport", arg0, arg1) as AsyncToken;
+            else
+                throw new Error("Illegal argument to remote call (last argument should be Function or ITideResponder): " + resultHandler);
+        }    
+        
         public function getReports(arg0:int, resultHandler:Object = null, faultHandler:Function = null):AsyncToken {
             if (faultHandler != null)
                 return callProperty("getReports", arg0, resultHandler, faultHandler) as AsyncToken;
@@ -58,17 +69,6 @@ package org.xreport.services {
                 return callProperty("getReportParams", arg0, resultHandler) as AsyncToken;
             else if (resultHandler == null)
                 return callProperty("getReportParams", arg0) as AsyncToken;
-            else
-                throw new Error("Illegal argument to remote call (last argument should be Function or ITideResponder): " + resultHandler);
-        }    
-        
-        public function buildReport(arg0:Report, arg1:String, resultHandler:Object = null, faultHandler:Function = null):AsyncToken {
-            if (faultHandler != null)
-                return callProperty("buildReport", arg0, arg1, resultHandler, faultHandler) as AsyncToken;
-            else if (resultHandler is Function || resultHandler is ITideResponder)
-                return callProperty("buildReport", arg0, arg1, resultHandler) as AsyncToken;
-            else if (resultHandler == null)
-                return callProperty("buildReport", arg0, arg1) as AsyncToken;
             else
                 throw new Error("Illegal argument to remote call (last argument should be Function or ITideResponder): " + resultHandler);
         }

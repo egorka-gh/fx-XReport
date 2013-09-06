@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
@@ -71,7 +72,7 @@ public class XReportServiceImpl implements XReportService {
 		return new SqlClosure<List<Source>>(ConnectionFactory.getDataSource()) {
 			public List<Source> execute(Connection connection) {
 				try {
-					PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM xrep.source ORDER BY id");
+					PreparedStatement pstmt = connection.prepareStatement("SELECT * FROM xrep.source ORDER BY id DESC");
 					return OrmElf.statementToList(pstmt, Source.class);
 				} catch (SQLException e) {
 					e.printStackTrace();
@@ -182,6 +183,10 @@ public class XReportServiceImpl implements XReportService {
             result.assignError(e1.getMessage());
             return result;
         }
+        try {
+			xmlStream.close();
+		} catch (IOException e2) {}
+        
         Connection cnn=null;
         try {
         	cnn=ConnectionFactory.getConnection(source);
@@ -202,8 +207,7 @@ public class XReportServiceImpl implements XReportService {
         try {
 			if(cnn!=null) cnn.close();
 	        if(outputStream!=null) outputStream.close();
-	        inputStream.close();
-	        xmlStream.close();
+	        //inputStream.close();
 		} catch (Exception e) {
 		}
         

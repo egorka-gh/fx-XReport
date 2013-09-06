@@ -113,6 +113,11 @@ public class XlsReporter {
                     result.add(sql);
                 }
             }
+            StringUtils stringUtils = new StringUtils();
+            if ((!stringUtils.isEmpty(sheet.getSqlName())) &&(!result.contains(sheet.getSqlName()))){
+                result.add(sheet.getSqlName());
+            }
+
         }
         return result;
     }

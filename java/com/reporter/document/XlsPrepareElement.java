@@ -822,6 +822,7 @@ public class XlsPrepareElement {
                 XLSDataLockedException, XLSConnectionBrokenException, IOException, CommandStructureException, XLSUnknownSourceException{
         sectionOffset.setStartingXOffset(offsetX);
         sectionOffset.setStartingYOffset(offsetY);
+
         if (layout instanceof DinamicLayout){
             sectionName = ((DinamicLayout)layout).getRegionName();
             List<OutputElement> element = prepareBoundElement((BoundLayout)layout, offsetX, offsetY);
@@ -844,8 +845,10 @@ public class XlsPrepareElement {
                     preparedElements.add(outputElement);
                     checkMerge(outputElement, layout);
                     //set row height & column width
-                    if (outputWorkbook.getWorkbook().getCellStyleAt(layout.getStyleIndex()).getWrapText()){
-                     outputWorkbook.getOuputSheet().setRowHeightDefault(outputElement.getOutputReferences().getRowIndex());
+                    if (outputWorkbook.getWorkbook().getCellStyleAt(layout.getStyleIndex()).getWrapText() 
+                    		&& outputElement.getCellValue()!=null
+                    		&& !outputElement.getCellValue().isEpmpty()
+                		&& !((layout instanceof MergedLayout) && (((MergedLayout)layout).getMerge() != null))){//no sence 4 merged cells                    	outputWorkbook.getOuputSheet().setRowHeightDefault(outputElement.getOutputReferences().getRowIndex());
                     } else{
                         outputWorkbook.getOuputSheet().setRowHeight(outputElement.getOutputReferences().getRowIndex(), layout.getRowHeight());
                     }
@@ -871,7 +874,10 @@ public class XlsPrepareElement {
                 preparedElements.add(element);
                 checkMerge(element, layout);
                 //set row height & column width
-                if (outputWorkbook.getWorkbook().getCellStyleAt(layout.getStyleIndex()).getWrapText()){
+                if (outputWorkbook.getWorkbook().getCellStyleAt(layout.getStyleIndex()).getWrapText()
+                		&& element.getCellValue()!= null 
+                		&& !element.getCellValue().isEpmpty() 
+                		&& !((layout instanceof MergedLayout) && (((MergedLayout)layout).getMerge() != null))){//no sence 4 merged cells
                     outputWorkbook.getOuputSheet().setRowHeightDefault(element.getOutputReferences().getRowIndex());
                 } else{
                     outputWorkbook.getOuputSheet().setRowHeight(element.getOutputReferences().getRowIndex(), layout.getRowHeight());
