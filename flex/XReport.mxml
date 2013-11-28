@@ -21,6 +21,7 @@
 			import org.granite.tide.spring.Identity;
 			import org.granite.tide.spring.Spring;
             
+			
             [Bindable] [Inject]
             public var identity:Identity;
             

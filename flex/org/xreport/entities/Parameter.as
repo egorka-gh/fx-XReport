@@ -11,5 +11,6 @@ package org.xreport.entities {
     public class Parameter extends ParameterBase {
 		public static const PARAM_PERIOD:String='period';
 		public static const PARAM_DATE:String='pdate';
+		public static const PARAM_STORE:String='pstore';
     }
 }

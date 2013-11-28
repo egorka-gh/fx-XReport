@@ -8,6 +8,7 @@ import org.xreport.entities.Report;
 import org.xreport.entities.ReportResult;
 import org.xreport.entities.Source;
 import org.xreport.entities.SourceType;
+import org.xreport.entities.UkmStore;
 
 
 
@@ -18,5 +19,6 @@ public interface XReportService {
 	public List<Source> getSources();
 	public List<Report> getReports(final int sourceType);
 	public List<Parameter> getReportParams(final String report);
+	public List<UkmStore> getStores(String source);
 	public ReportResult buildReport(final Report report, String source);
 }

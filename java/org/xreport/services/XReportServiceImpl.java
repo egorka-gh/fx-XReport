@@ -29,6 +29,7 @@ import org.xreport.entities.Report;
 import org.xreport.entities.ReportResult;
 import org.xreport.entities.Source;
 import org.xreport.entities.SourceType;
+import org.xreport.entities.UkmStore;
 import org.xreport.util.ConnectionFactory;
 import org.xreport.util.ValueDistributorImpl;
 
@@ -104,6 +105,22 @@ public class XReportServiceImpl implements XReportService {
 				try {
 					PreparedStatement pstmt = connection.prepareStatement("SELECT p.* FROM xrep.report_params rp INNER JOIN parameter p ON p.id = rp.parameter WHERE rp.report = ?");
 					return OrmElf.statementToList(pstmt, Parameter.class, report);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}.execute();		
+	}
+
+	
+	@Override
+	public List<UkmStore> getStores(String source) {
+		return new SqlClosure<List<UkmStore>>(ConnectionFactory.getDataSource(source)) {
+			public List<UkmStore> execute(Connection connection) {
+				try {
+					PreparedStatement pstmt = connection.prepareStatement("SELECT store_id, name, inn FROM ukmserver.trm_in_store st WHERE st.deleted = 0");
+					return OrmElf.statementToList(pstmt, UkmStore.class);
 				} catch (SQLException e) {
 					e.printStackTrace();
 					return null;

@@ -24,6 +24,7 @@
 			import org.xreport.entities.Welcome;
 			import org.xreport.itemrenderer.ParamDateIR;
 			import org.xreport.itemrenderer.ParamPeriodIR;
+			import org.xreport.itemrenderer.ParamStoreIR;
 			import org.xreport.itemrenderer.ParamStringIR;
 			import org.xreport.services.WelcomeService;
 			import org.xreport.services.XReportService;
@@ -32,6 +33,8 @@
             
 			[Inject]
 			public var xReportService:XReportService;
+			[Bindable] [Out]
+			public var source:Source;
 
 			[Bindable]
 			public var sourceLst:ArrayCollection;
@@ -96,6 +99,7 @@
 			}
 
 			protected function ddSource_changeHandler(event:Event):void{
+				source=ddSource.selectedItem as Source;
 				getReportLst();
 			}
 			
@@ -148,6 +152,10 @@
 					}
 					case Parameter.PARAM_DATE:{
 						classFactory = new ClassFactory(ParamDateIR);
+						break;
+					}
+					case Parameter.PARAM_STORE:{
+						classFactory = new ClassFactory(ParamStoreIR);
 						break;
 					}
 					default:{

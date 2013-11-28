@@ -2,7 +2,8 @@ package org.xreport.util;
 
 public enum ParameterType {
 	PPeriod("period"),
-	PDate("pdate");
+	PDate("pdate"),
+	PStore("pstore");
 	
 	private ParameterType(String type) {
 		this.type = type;
