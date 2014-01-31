@@ -1,0 +1,63 @@
+<element-set>
+  <element name="rpBody">
+    <sql>
+      <![CDATA[    
+		SELECT
+		  @rownum ::= @rownum +1 rwnum,
+		  t.dtDate,
+		  IF(chh.id IS NULL, '-', CONCAT_WS('.', CAST(chh.pos AS CHAR), CAST(chz.number AS CHAR), CAST(chh.local_number AS CHAR))) chkNum,
+		  t.acType,
+		  t.acName,
+		  (t.balance - t.amount) nominal,
+		  (t.amount * -1) spend,
+		  t.date_from,
+		  t.date_to,
+		  IFNULL(tis.name, '-') store
+		FROM (SELECT
+		  DATE(aj.`date`) dtDate,
+		  at.name acType,
+		  ac.name acName,
+		  acs.date_from,
+		  acs.date_to,
+		  aj.cash_id,
+		  aj.source_id,
+		  SUM(aj.balance) balance,
+		  SUM(aj.amount) amount
+		FROM ukmserver.trm_in_account_type_certificates tc
+		  INNER JOIN ukmserver.trm_in_account_type at
+		    ON tc.id = at.id
+		  INNER JOIN ukmserver.local_auth_account ac
+		    ON ac.account_type_id = at.id
+		  INNER JOIN ukmserver.local_auth_certificate_account acs
+		    ON ac.id = acs.account_id
+		  INNER JOIN ukmserver.local_auth_account_journal aj
+		    ON ac.id = aj.account_id AND aj.source_type = 1
+		WHERE aj.`date` BETWEEN STR_TO_DATE( :pFrom , '%Y-%m-%d') AND DATE_ADD( STR_TO_DATE( :pTo , '%Y-%m-%d') , INTERVAL 1 DAY)
+		GROUP BY aj.account_id,
+		         DATE(aj.`date`),
+		         at.name,
+		         ac.name,
+		         acs.date_from,
+		         acs.date_to,
+		         aj.cash_id,
+		         aj.source_id) t
+		  LEFT OUTER JOIN ukmserver.trm_out_receipt_header chh ON chh.cash_id = t.cash_id AND chh.id = t.source_id
+		  LEFT OUTER JOIN ukmserver.trm_out_shift_open chz ON chh.cash_id = chz.cash_id AND chh.shift_open = chz.id
+		  LEFT OUTER JOIN ukmserver.trm_in_pos tip ON chh.cash_id = tip.cash_id
+		  LEFT OUTER JOIN ukmserver.trm_in_store tis ON tip.store_id = tis.store_id,
+          ( SELECT @rownum ::=0 ) r
+		WHERE t.amount != 0
+		ORDER BY 1, 2
+	]]>
+    </sql>
+  </element>
+
+  <element name="rpDt">
+    <sql>
+      <![CDATA[
+      SELECT STR_TO_DATE( '2013-05-05' , '%Y-%m-%d') dtDate, CONCAT_WS('-','start', :pFrom , :ppFrom, :pTo,  'end') strDate     
+	]]>
+    </sql>
+  </element>
+  
+</element-set>

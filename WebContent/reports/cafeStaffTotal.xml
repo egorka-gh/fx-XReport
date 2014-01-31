@@ -1,0 +1,16 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[    
+  SELECT st.staff, SUM (cs.total) total
+    FROM supermag.cafe_cashsail cs, supermag.cafe_staff st
+   WHERE     cs.casher = st.id
+         AND cs.dt_date BETWEEN TO_DATE ( :pFrom , 'YYYY-MM-DD')
+                            AND TO_DATE ( :pTo , 'YYYY-MM-DD')
+GROUP BY st.staff
+ORDER BY st.staff
+	]]>
+    </sql>
+  </element>
+
+</element-set>

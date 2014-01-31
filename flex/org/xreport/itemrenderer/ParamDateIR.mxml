@@ -11,7 +11,7 @@
 			private var param:Parameter;
 
 			[Bindable]
-			private var dayNames:Array=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+			private var dayNames:Array=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
 			[Bindable]
 			private var mnthNames:Array=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 
@@ -36,7 +36,7 @@
 		<s:Label text="{param.name}"/>
 		<s:Spacer width="5"/>
 
-		<mx:DateField id="dcFrom" selectedDate="@{param.valDate}" formatString="DD.MM.YY" dayNames="{dayNames}" monthNames="{mnthNames}"/>
+		<mx:DateField id="dcFrom" selectedDate="@{param.valDate}" formatString="DD.MM.YY" dayNames="{dayNames}" firstDayOfWeek="1" monthNames="{mnthNames}"/>
 	</s:HGroup>
 	
 </s:ItemRenderer>
