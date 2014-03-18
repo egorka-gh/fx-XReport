@@ -1,0 +1,13 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[    
+  SELECT TRUNC (printtime) dtdate, desknum, SUM (totalsum) total
+    FROM supermag.smonlinechecks
+GROUP BY TRUNC (printtime), desknum
+ORDER BY TRUNC (printtime), desknum
+	]]>
+    </sql>
+  </element>
+
+</element-set>
