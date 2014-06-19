@@ -35,4 +35,22 @@ ORDER BY tis.name, SUM(rd.amount * IF(r.type IN (1, 4, 9), 1, -1)) desc
     </sql>
   </element>
 
+  <element name="rpterm">
+    <sql>
+      <![CDATA[
+SELECT tis.name store, tip.number cashnum, tip.kkm_number cashkkm, tip.name cashname, COUNT(*) chk, SUM(s.amount * IF(r.type IN (1, 4, 9), -1, 1)) tot, SUM(s.discounts_amount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
+FROM ukmserver.trm_out_receipt_header r
+  INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id 
+  INNER JOIN ukmserver.trm_in_store tis ON tis.store_id=tip.store_id
+  INNER JOIN ukmserver.trm_out_receipt_footer f ON f.cash_id = r.cash_id AND f.id = r.id
+  INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
+WHERE f.result = 0
+AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
+AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
+GROUP BY tis.name, tip.cash_id
+ORDER BY tis.name, tip.number
+	]]>
+    </sql>
+  </element>
+
 </element-set>
