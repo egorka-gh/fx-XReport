@@ -3,7 +3,7 @@
     <sql>
       <![CDATA[
   SELECT t.store, t.articul, t.artname, COUNT(*) chk, SUM(t.total) total, SUM(t.totaldsc) totaldsc, SUM(t.qtt) itqtt, SUM(t.tot) itemtot, SUM(t.dsc) itemdsc
-  FROM (SELECT tis.name store, r.cash_id, r.id ch_id, ri.item articul, ri.name artname, (s.amount * IF(r.type IN (1, 4, 9), -1, 1)) total, (s.discounts_amount * IF(r.type IN (1, 4, 9), 1, -1)) totaldsc, SUM(ri.quantity * IF(r.type IN (1, 4, 9), -1, 1)) qtt, SUM(ri.total * IF(r.type IN (1, 4, 9), -1, 1)) tot, SUM(ri.discount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
+  FROM (SELECT tis.name store, r.cash_id, r.id ch_id, ri.item articul, ri.name artname, (s.amount * IF(r.type IN (1, 4, 9), -1, 1)) total, (s.discounts_amount * IF(r.type IN (1, 4, 9), 1, -1)) totaldsc, SUM(ri.quantity * IF(r.type IN (1, 4, 9), -1, 1)) qtt, SUM((ri.total+ri.discount) * IF(r.type IN (1, 4, 9), -1, 1)) tot, SUM(ri.discount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
       FROM ukmserver.trm_out_receipt_header r
         INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX(date) ON f.cash_id = r.cash_id AND f.id = r.id
         INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id
@@ -26,7 +26,7 @@
 SELECT tis.name store, ri.item articul, ri.name artname, tidt.name dscname,
   COUNT(DISTINCT CONCAT_WS('.', r.cash_id, r.id)) chk, 
   SUM(ri.quantity * IF(r.type IN (1, 4, 9), -1, 1)) itqtt, 
-  SUM(ri.total * IF(r.type IN (1, 4, 9), -1, 1)) itemtot, 
+  SUM((ri.total+ri.discount) * IF(r.type IN (1, 4, 9), -1, 1)) itemtot, 
   SUM(rid.increment*ri.quantity * IF(r.type IN (1, 4, 9), 1, -1)) itemdsc
   FROM ukmserver.trm_out_receipt_header r
     INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX(date) ON f.cash_id = r.cash_id AND f.id = r.id
