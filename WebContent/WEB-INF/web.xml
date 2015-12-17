@@ -78,6 +78,13 @@
     </resource-ref>
 
     <resource-ref>
+    	<description>SM connection to SKONTCO</description>
+    	<res-ref-name>smSKONTCO</res-ref-name>
+    	<res-type>javax.sql.DataSource</res-type>
+    	<res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
     	<description>ukm connection to UKM4 ukmserver</description>
     	<res-ref-name>ukmUKM4</res-ref-name>
     	<res-type>javax.sql.DataSource</res-type>

@@ -18,6 +18,23 @@
 		testOnReturn="true"
 		validationQuery="SELECT 1 FROM DUAL"/>
 		
+	<Resource name="smSKONTCO" 
+		auth="Container" 
+		type="javax.sql.DataSource" 
+		factory="org.apache.tomcat.dbcp.dbcp.BasicDataSourceFactory"
+		username="supermag"
+		password="fhfvbc1999"
+		driverClassName="oracle.jdbc.driver.OracleDriver"
+		url="jdbc:oracle:thin:@192.168.30.52:1521:SKONTCO"
+	        maxIdle="10" 
+	        maxWait="10000" 
+		removeAbandoned="true" 
+		removeAbandonedTimeout="60" 
+		logAbandoned="true"
+		testOnBorrow="true"
+		testOnReturn="true"
+		validationQuery="SELECT 1 FROM DUAL"/>
+		
 	<Resource name="ukmUKM4"
 		auth="Container" 
 		type="javax.sql.DataSource"

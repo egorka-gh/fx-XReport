@@ -825,6 +825,7 @@ public class XlsPrepareElement {
 
         if (layout instanceof DinamicLayout){
             sectionName = ((DinamicLayout)layout).getRegionName();
+            //System.out.println(sectionName); 
             List<OutputElement> element = prepareBoundElement((BoundLayout)layout, offsetX, offsetY);
             if (!addNewLayoutForParents(layout, offsetX, offsetY)){
                 preparedElements.addAll(element);

@@ -13,6 +13,27 @@ public class CoordinatesComparatorOriginalFlow<T extends Layout> implements Comp
     public int compare(Layout o1, Layout o2) {
         XlsReference ref1 = o1.getReferences();
         XlsReference ref2 = o2.getReferences();
+        
+        /*
+        if(o1.getCommand()==XLSCommands.XLSCommandRow){
+        	//sort row first inside crosstab, col - very last
+            DinamicLayout pr1 = o1.getParents().get(0);
+            if(pr1!=null && pr1.getCommand()==XLSCommands.XLSCommandCrossTab){
+            	//cross tab row - first (to add before cross column in TemplateCoordinatesComparator) 
+            	return -1;
+            }
+        }
+        if(o1.getCommand()==XLSCommands.XLSCommandColumn){
+        	//sort row first inside crosstab, col - very last
+            DinamicLayout pr1 = o1.getParents().get(0);
+            if(pr1!=null && pr1.getCommand()==XLSCommands.XLSCommandCrossTab){
+            	//cross tab col - last (to add before cross column in TemplateCoordinatesComparator) 
+            	return 1;
+            }
+        }
+        */
+
+        
         if ((ref1.getColIndex() == ref2.getColIndex()) && (ref1.getRowIndex() == ref2.getRowIndex())){
             //same cell
             return 0;

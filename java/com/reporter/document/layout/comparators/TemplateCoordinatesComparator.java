@@ -29,6 +29,28 @@ public class TemplateCoordinatesComparator<T extends Layout> implements Comparat
         CellReference cell1From = o1.getReferences().getCellReference();
         CellReference cell2From = o2.getReferences().getCellReference();
         CellReference cell2To = o2.getReferences().getCellReferenceTo();
+
+        /* not work
+        //crosstab column after cross row
+        DinamicLayout pr1;
+        DinamicLayout pr2;
+        if((o1.getCommand()==XLSCommands.XLSCommandRow || o1.getCommand()==XLSCommands.XLSCommandColumn) &&
+        		(o2.getCommand()==XLSCommands.XLSCommandRow || o2.getCommand()==XLSCommands.XLSCommandColumn) &&
+        		(o1.getCommand()!=o2.getCommand())){
+        	//sort inside crosstab
+            pr1 = o1.getParents().get(0);
+            if(pr1!=null && pr1.getCommand()==XLSCommands.XLSCommandCrossTab){
+                pr2 = o2.getParents().get(0);
+                if(pr2!=null && pr2.getCommand()==XLSCommands.XLSCommandCrossTab && pr1==pr2){
+                	if(o1.getCommand()==XLSCommands.XLSCommandRow){
+                		return -1;
+                	}else{
+                		return 1;
+                	}
+                }
+            }
+        }
+        */
         
         if (cell1From.getCol() > cell2From.getCol()){
             return INVERSE * compare(o2, o1);

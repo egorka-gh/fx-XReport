@@ -1,0 +1,20 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+SELECT tis.name store, COUNT(*) chks, AVG(s.amount) amount, AVG(-s.discounts_amount) disc, AVG(s.items_count) items
+  FROM ukmserver.trm_out_receipt_header r
+    INNER JOIN ukmserver.trm_out_receipt_footer f ON f.cash_id = r.cash_id AND f.id = r.id
+    INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id
+    INNER JOIN ukmserver.trm_in_store tis ON tis.store_id = tip.store_id
+    INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
+  WHERE f.result = 0
+    AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
+    AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
+    AND r.type NOT IN (1, 4, 9)
+  GROUP BY tis.name
+	]]>
+    </sql>
+  </element>
+
+</element-set>

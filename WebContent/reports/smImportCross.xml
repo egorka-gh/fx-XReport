@@ -1,0 +1,108 @@
+<element-set>
+
+  <element name="LoadClass" before-report="1">
+    <sql>
+      <![CDATA[    
+        begin supermag.RepTools.LoadClass(2, 0, :passort); end;
+      ]]>
+    </sql>
+  </element>
+
+  <element name="LoadLoc" before-report="1">
+    <sql>
+      <![CDATA[    
+        begin supermag.RepTools.LoadLoc(1, '13,47,51,56', null, null); end;
+      ]]>
+    </sql>
+  </element>
+
+  <element name="LoadSQLFilter" before-report="1">
+    <sql>
+      <![CDATA[    
+        begin supermag.RepTools.LoadSQLFilter; end;
+      ]]>
+    </sql>
+  </element>
+
+  <element name="RemainsCalc" before-report="1">
+    <sql>
+      <![CDATA[    
+        begin supermag.Remains.Calc(TO_DATE ( :pTo , 'YYYY-MM-DD'),false, 23, 0, false); end;
+      ]]>
+    </sql>
+  </element>
+
+  <element name="clearTemp1" before-report="1">
+    <sql>
+      <![CDATA[    
+        begin supermag.RepTools.TruncTable('ttostatki2'); end;
+      ]]>
+    </sql>
+  </element>
+
+  <element name="salesCalc" before-report="1">
+    <sql>
+      <![CDATA[    
+INSERT INTO supermag.ttostatki2 (locid, article, qty)
+     SELECT tl.id, s.article, SUM (DECODE (d.doctype, 'CS', 1, -1) * s.quantity) qty
+       FROM ttloclist tl, supermag.smspec s, supermag.smdocuments d
+      WHERE     d.doctype IN ('CS', 'CR')
+            AND tl.id IN (d.locationfrom, d.locationto)
+            AND d.createdat BETWEEN TO_DATE ( :pFrom , 'YYYY-MM-DD') AND TO_DATE ( :pTo , 'YYYY-MM-DD')
+            AND d.docstate IN (2, 3)
+            AND s.doctype = d.doctype
+            AND s.docid = d.id
+            AND EXISTS
+                   (SELECT 1
+                      FROM ttidgroup tg
+                     WHERE tg.article = s.article)
+   GROUP BY tl.id, s.article
+         ]]>
+    </sql>
+  </element>
+
+  <element name="rpdays">
+    <sql>
+      <![CDATA[
+	SELECT (TO_DATE ( :pTo , 'YYYY-MM-DD') - TO_DATE ( :pFrom , 'YYYY-MM-DD') + 1) days FROM DUAL
+ 	]]>
+    </sql>
+  </element>
+
+  <element name="rprow">
+    <sql>
+      <![CDATA[
+SELECT c.article, c.shortname caption, c.mesabbrev ei
+  FROM svcardname c, ttidgroup tc
+ WHERE c.article = tc.article
+ ORDER BY c.shortname
+ 	]]>
+    </sql>
+  </element>
+
+  <element name="rpcol">
+    <sql>
+      <![CDATA[
+  SELECT s.id, s.name caption
+    FROM smstorelocations s
+   WHERE s.id IN (13, 47, 51, 56)
+ORDER BY s.id
+	]]>
+    </sql>
+  </element>
+
+  <element name="rpcell">
+    <sql>
+      <![CDATA[
+SELECT (SELECT SUM (qty)
+          FROM ttostatki2
+         WHERE locid = :rpcol.id AND article = :rprow.article ) sel,
+       (SELECT SUM (tr.quantity)
+          FROM ttremains tr
+         WHERE tr.storeloc = :rpcol.id AND tr.article = :rprow.article ) ost
+  FROM DUAL
+  	]]>
+    </sql>
+  </element>
+
+</element-set>
