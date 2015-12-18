@@ -3,7 +3,6 @@ package com.reporter.data;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -143,6 +142,7 @@ public class XLSDataCache {
             }
             try {
                 st.execute();
+                st.close();
             } catch (SQLException e) {
                 throw new XLSExecSqlException("execSqlErr", e.getMessage() ,sqlElement.getSql(), paramVals);
             }
