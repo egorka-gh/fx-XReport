@@ -1,7 +1,7 @@
 <element-set>
   <element name="rpbody">
     <sql>
-      <![CDATA[    
+      <![CDATA[
 SELECT
   CONCAT_WS(' ','Выручка кассы №', pos.kkm_number) kkm,
   :pkasir kasir,
@@ -10,11 +10,16 @@ SELECT
   login.user_name AS cashiername,
   mo.date operday,
   mo.amount AS sum,
-  xrep.num_to_text(mo.amount) spellsum
-FROM ukmserver.trm_out_moneyoperation mo
+  xrep.num_to_text(mo.amount) spellsum,
+  tis.accountant,
+  tis.accountant_position
+FROM
+  ukmserver.trm_in_store tis
+  INNER JOIN ukmserver.trm_in_pos pos ON tis.store_id=pos.store_id  
+  INNER JOIN ukmserver.trm_out_moneyoperation mo ON pos.cash_id = mo.cash_id
   INNER JOIN ukmserver.trm_out_login login ON login.cash_id = mo.cash_id AND login.id = mo.login
-  INNER JOIN ukmserver.trm_in_pos pos ON pos.cash_id = mo.cash_id
-WHERE mo.date>= STR_TO_DATE( :pdate , '%Y-%m-%d') AND mo.date<DATE_ADD(STR_TO_DATE( :pdate , '%Y-%m-%d'),INTERVAL 1 DAY) AND pos.store_id=:pstore
+WHERE mo.date>= STR_TO_DATE( :pdate , '%Y-%m-%d') AND mo.date<DATE_ADD(STR_TO_DATE( :pdate , '%Y-%m-%d'),INTERVAL 1 DAY)
+  AND tis.store_id= :pstore
 ORDER BY pos.number,mo.date
 	]]>
     </sql>
