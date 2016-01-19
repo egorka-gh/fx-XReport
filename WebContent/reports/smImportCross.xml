@@ -11,7 +11,7 @@
   <element name="LoadLoc" before-report="1">
     <sql>
       <![CDATA[    
-        begin supermag.RepTools.LoadLoc(1, '13,47,51,56', null, null); end;
+        begin supermag.RepTools.LoadLoc(1, '13,30,34,47,51,56', null, null); end;
       ]]>
     </sql>
   </element>
@@ -64,7 +64,7 @@ INSERT INTO supermag.ttostatki2 (locid, article, qty)
   <element name="rpdays">
     <sql>
       <![CDATA[
-	SELECT (TO_DATE ( :pTo , 'YYYY-MM-DD') - TO_DATE ( :pFrom , 'YYYY-MM-DD') + 1) days FROM DUAL
+	SELECT (TO_DATE ( :pTo , 'YYYY-MM-DD') - TO_DATE ( :pFrom , 'YYYY-MM-DD') + 1) days, TO_CHAR (TO_DATE ( :pFrom , 'YYYY-MM-DD'), 'DD.MM.YYYY') || ' по ' || TO_CHAR (TO_DATE ( :pTo , 'YYYY-MM-DD'), 'DD.MM.YYYY') speriod  FROM DUAL
  	]]>
     </sql>
   </element>
@@ -72,7 +72,7 @@ INSERT INTO supermag.ttostatki2 (locid, article, qty)
   <element name="rprow">
     <sql>
       <![CDATA[
-SELECT c.article, c.shortname caption, c.mesabbrev ei
+SELECT c.article, c.shortname caption, c.mesabbrev ei, AM_GETARTICLEBARCODES(c.article) bars
   FROM svcardname c, ttidgroup tc
  WHERE c.article = tc.article
  ORDER BY c.shortname
@@ -85,7 +85,7 @@ SELECT c.article, c.shortname caption, c.mesabbrev ei
       <![CDATA[
   SELECT s.id, s.name caption
     FROM smstorelocations s
-   WHERE s.id IN (13, 47, 51, 56)
+   WHERE s.id IN (13,30,34,47,51,56)
 ORDER BY s.id
 	]]>
     </sql>
