@@ -35,7 +35,7 @@
   <element name="clearTemp1" before-report="1">
     <sql>
       <![CDATA[    
-        begin supermag.RepTools.TruncTable('ttostatki2'); end;
+        begin supermag.RepTools.TruncTable('ttfoundquantity'); end;
       ]]>
     </sql>
   </element>
@@ -43,7 +43,7 @@
   <element name="salesCalc" before-report="1">
     <sql>
       <![CDATA[    
-INSERT INTO supermag.ttostatki2 (locid, article, qty)
+INSERT INTO ttfoundquantity (storeloc, article, quantity)
      SELECT tl.id, s.article, SUM (DECODE (d.doctype, 'CS', 1, -1) * s.quantity) qty
        FROM ttloclist tl, supermag.smspec s, supermag.smdocuments d
       WHERE     d.doctype IN ('CS', 'CR')
@@ -72,10 +72,10 @@ INSERT INTO supermag.ttostatki2 (locid, article, qty)
   <element name="rprow">
     <sql>
       <![CDATA[
-SELECT c.article, c.shortname caption, c.mesabbrev ei, AM_GETARTICLEBARCODES(c.article) bars
-  FROM svcardname c, ttidgroup tc
- WHERE c.article = tc.article
- ORDER BY c.shortname
+   SELECT ca.id grpid, ca.tree || ' ' || ca.name grpname, c.article, c.shortname caption, c.mesabbrev ei, am_getarticlebarcodes (c.article) bars
+    FROM svcardname c, ttidgroup tc, sacardassort ca, smcardassort am
+   WHERE c.article = tc.article AND ca.tree LIKE :passort || '%' AND am.idassort = ca.id AND tc.article = am.article AND c.article = am.article 
+ORDER BY ca.tree || ' ' || ca.name, c.shortname
  	]]>
     </sql>
   </element>
@@ -94,14 +94,26 @@ ORDER BY s.id
   <element name="rpcell">
     <sql>
       <![CDATA[
-SELECT (SELECT SUM (qty)
-          FROM ttostatki2
-         WHERE locid = :rpcol.id AND article = :rprow.article ) sel,
-       (SELECT SUM (tr.quantity)
+SELECT nvl((SELECT SUM (ts.quantity)
+		  FROM ttfoundquantity ts
+		 WHERE ts.storeloc = :rpcol.id AND ts.article = :rprow.article ),0) sel,
+       nvl((SELECT SUM (tr.quantity)
           FROM ttremains tr
-         WHERE tr.storeloc = :rpcol.id AND tr.article = :rprow.article ) ost
+         WHERE tr.storeloc = :rpcol.id AND tr.article = :rprow.article ),0) ost
   FROM DUAL
   	]]>
+    </sql>
+  </element>
+
+    <element name="rpcellst">
+    <sql>
+      <![CDATA[
+SELECT NVL( (SELECT SUM (ts.quantity) FROM ttfoundquantity ts, smcardassort am
+               WHERE ts.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND ts.article = am.article), 0) sel,
+       NVL( (SELECT SUM (tr.quantity) FROM ttremains tr, smcardassort am
+               WHERE tr.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND tr.article = am.article), 0) ost
+  FROM DUAL
+  ]]>
     </sql>
   </element>
 

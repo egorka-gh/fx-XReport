@@ -20,7 +20,16 @@ public class Parameter extends AbstractExternalizedBean{
     
     @Column(name="name")
     private String name;
-    
+
+    @Column(name="is_list")
+    private boolean isList;
+
+    @Column(name="is_multi")
+    private boolean isMulti;
+
+    @Column(name="list_sql")
+    private String listSql;
+
     @Transient
     private Date valFrom;
 
@@ -86,6 +95,24 @@ public class Parameter extends AbstractExternalizedBean{
 	}
 	public void setValString(String valString) {
 		this.valString = valString;
+	}
+	public boolean isList() {
+		return isList;
+	}
+	public void setList(boolean isList) {
+		this.isList = isList;
+	}
+	public boolean isMulti() {
+		return isMulti;
+	}
+	public void setMulti(boolean isMulti) {
+		this.isMulti = isMulti;
+	}
+	public String getListSql() {
+		return listSql;
+	}
+	public void setListSql(String listSql) {
+		this.listSql = listSql;
 	}
 	
 }
