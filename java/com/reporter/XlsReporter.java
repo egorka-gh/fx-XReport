@@ -28,6 +28,7 @@ import com.reporter.document.XLSDocumentWriter;
 import com.reporter.document.layout.BoundLayout;
 import com.reporter.document.layout.DinamicLayout;
 import com.reporter.document.layout.Layout;
+import com.reporter.document.layout.impl.GenericDinamicLayout;
 import com.reporter.document.layout.impl.Sheet;
 import com.reporter.parser.TemplateParser;
 import com.reporter.utils.StringUtils;
@@ -99,6 +100,15 @@ public class XlsReporter {
                         }
                     }
                 }
+                if (comp instanceof GenericDinamicLayout){
+                    List<String> tempSql = getUsedSqlFromChilds(((GenericDinamicLayout)temlComp).getOutOfCrossChildSet());
+                    for (String tempSqlName : tempSql){
+                        if (!result.contains(tempSqlName)){
+                            result.add(tempSqlName);
+                        }
+                    }
+                }
+                
             }
         }
         return result;

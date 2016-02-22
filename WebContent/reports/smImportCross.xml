@@ -91,6 +91,16 @@ ORDER BY s.id
     </sql>
   </element>
 
+  <element name="rpcoltot">
+    <sql>
+      <![CDATA[
+SELECT NVL( (SELECT SUM (ts.quantity) FROM ttfoundquantity ts WHERE ts.storeloc = :rpcol.id), 0) sel,
+       NVL( (SELECT SUM (tr.quantity) FROM ttremains tr WHERE tr.storeloc = :rpcol.id ), 0) ost
+  FROM DUAL
+	]]>
+    </sql>
+  </element>
+
   <element name="rpcell">
     <sql>
       <![CDATA[

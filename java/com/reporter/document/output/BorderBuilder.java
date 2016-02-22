@@ -39,7 +39,11 @@ public class BorderBuilder {
             }
             if ((oe.getOutputReferences().getRowIndex()-fromRow) < elementOffsets.getHeight()){
                 if ((oe.getOutputReferences().getColIndex()-fromCol) < elementOffsets.getWidth()){
-                	arrChilds[oe.getOutputReferences().getRowIndex()-fromRow][oe.getOutputReferences().getColIndex()-fromCol]= oe;
+                	try {
+                    	arrChilds[oe.getOutputReferences().getRowIndex()-fromRow][oe.getOutputReferences().getColIndex()-fromCol]= oe;
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
                 } else{
                     //may be cross column out of array
                     int t=0;

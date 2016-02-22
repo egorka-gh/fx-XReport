@@ -86,6 +86,13 @@ public class GenericDinamicLayout extends GenericBoundLayout implements DinamicL
         hasDummyRegionName = false; 
     }
 
+    public Set<Layout> getOutOfCrossChildSet(){
+    	Set<Layout> result = new TreeSet<Layout>(new TemplateCoordinatesComparator<Layout>());
+    	result.addAll(afterCrossChilds);
+    	result.addAll(undeCrossChilds);
+    	return result;
+    }
+    
     /* (non-Javadoc)
      * @see com.reporter.document.layout.impl.GenericLayout#setReferences(java.lang.String)
      */
@@ -348,6 +355,18 @@ public class GenericDinamicLayout extends GenericBoundLayout implements DinamicL
         for (Layout lt : undeCrossChilds){
             Layout addLt = lt.clone();
             addLt.setReferences(lt.getReferences().getCloneWithOffset(0, rowOffset));
+            if(lt instanceof DinamicLayout){
+            	//CELL
+            	if(((DinamicLayout) lt).hasChilds()){
+            		List<Layout> childs = new ArrayList<Layout>(((DinamicLayout) lt).getChilds());
+            		for (Layout childLayout : childs){
+            			((DinamicLayout) addLt).removeChild(childLayout);
+            			Layout addChild = childLayout.clone();
+            			addChild.setReferences(childLayout.getReferences().getCloneWithOffset(0, rowOffset));
+            			((DinamicLayout) addLt).addChild(addChild);
+            		}
+            	}
+            }
             addChild(addLt); 
         }
     }
