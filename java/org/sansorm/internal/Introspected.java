@@ -66,6 +66,7 @@ public class Introspected
 
     private String[] insertableColumns;
     private String[] updatableColumns;
+    private String[] selectableColumns;
     
     // Instance initializer
     {
@@ -172,12 +173,12 @@ public class Introspected
      * @param columnName The column name.
      * @param value The column value.
      */
-    public void set(Object target, String columnName, Object value)
-    {
+    public void set(Object target, String columnName, Object value){
         FieldColumnInfo fcInfo = columnToField.get(columnName);
-        if (fcInfo == null)
-        {
-            throw new RuntimeException("Cannot find field mapped to column " + columnName + " on type " + target.getClass().getCanonicalName());
+        if (fcInfo == null){
+        	//extra column - ignore??
+            //throw new RuntimeException("Cannot find field mapped to column " + columnName + " on type " + target.getClass().getCanonicalName());
+        	return;
         }
 
         try
@@ -189,23 +190,25 @@ public class Introspected
             if (fieldType != columnType)
             {
                 // Fix-up column value for enums, integer as boolean, etc.
-                if (fieldType == boolean.class && columnType == Integer.class)
-                {
-                    columnValue = (((Integer) columnValue) != 0);
+                if (fieldType == boolean.class && (columnType == Integer.class || columnType == Long.class)){
+                	if(columnType == Integer.class){
+                		columnValue = (((Integer) columnValue) != 0);
+                	}else{
+                		columnValue = (((Long) columnValue) != 0);
+                	}
                 }
                 else if (columnType == BigDecimal.class)
                 {
-                    if (fieldType == BigInteger.class)
-                    {
+                    if (fieldType == BigInteger.class){
                         columnValue = ((BigDecimal) columnValue).toBigInteger();
-                    }
-                    else if (fieldType == Integer.class)
-                    {
+                    }else if (fieldType == Integer.class){
                         columnValue = (int) ((BigDecimal) columnValue).longValue();
-                    }
-                    else if (fieldType == Long.class)
-                    {
+                    }else if (fieldType == Long.class){
                         columnValue = ((BigDecimal) columnValue).longValue();
+                    }else if (fieldType == Double.class || fieldType==double.class){
+                        columnValue = ((BigDecimal) columnValue).doubleValue();
+                    }else if (fieldType == Float.class || fieldType == float.class){
+                        columnValue = ((BigDecimal) columnValue).floatValue();
                     }
                 }
                 else if (fcInfo.enumConstants != null)
@@ -215,6 +218,9 @@ public class Introspected
                 else if (columnValue instanceof Clob)
                 {
                     columnValue = readClob((Clob) columnValue);
+                }else if (columnType == Long.class && fieldType == Integer.class){
+                	//4 autogen Id's
+                	columnValue=((Long) columnValue).intValue();
                 }
             }
 
@@ -376,6 +382,32 @@ public class Introspected
     }
 
     /**
+     * Get the selectabel columns for this object.
+     * return all updatabel columns (include auto id)
+     *
+     * @return the columns
+     */
+    public String[] getSelectableColumns(){
+        if (selectableColumns != null) return selectableColumns;
+
+        LinkedList<String> columns = new LinkedList<String>();
+        columns.addAll(Arrays.asList(columnNames));
+        Iterator<String> iterator = columns.iterator();
+        while (iterator.hasNext()){
+            if (!isUpdatableColumn(iterator.next())){
+                iterator.remove();
+            }
+        }
+        //add ids if excluded
+        for (String idField : idColumnNames){
+        	if(!columns.contains(idField)) columns.addFirst(idField);
+        }
+
+        selectableColumns = columns.toArray(new String[0]);
+        return selectableColumns;
+    }
+
+    /**
      * Is this specified column insertable?
      *
      * @param columnName the column name
@@ -524,6 +556,7 @@ public class Introspected
 
             fcInfo.insertable = columnAnnotation.insertable();
             fcInfo.updatable = columnAnnotation.updatable();
+            
         }
         else
         {
@@ -562,6 +595,7 @@ public class Introspected
     private static class FieldColumnInfo
     {
         private boolean updatable;
+       /// private boolean updatableForce;
         private boolean insertable;
         private String columnName;
         private String columnTableName;

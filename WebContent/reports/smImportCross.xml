@@ -35,7 +35,7 @@
   <element name="clearTemp1" before-report="1">
     <sql>
       <![CDATA[    
-        begin supermag.RepTools.TruncTable('ttfoundquantity'); end;
+        begin supermag.RepTools.TruncTable('ttfoundquantity'); supermag.RepTools.TruncTable('ttremainsprod'); end;
       ]]>
     </sql>
   </element>
@@ -43,12 +43,12 @@
   <element name="salesCalc" before-report="1">
     <sql>
       <![CDATA[    
-INSERT INTO ttfoundquantity (storeloc, article, quantity)
-     SELECT tl.id, s.article, SUM (DECODE (d.doctype, 'CS', 1, -1) * s.quantity) qty
+INSERT INTO ttremainsprod (storeloc, zoneid, article, quantity, primecost)
+     SELECT tl.id, 0, s.article, SUM (DECODE (d.doctype, 'CS', 1, -1) * s.quantity) qty, SUM (DECODE (d.doctype, 'CS', 1, -1) * s.totalprice) qty
        FROM ttloclist tl, supermag.smspec s, supermag.smdocuments d
       WHERE     d.doctype IN ('CS', 'CR')
             AND tl.id IN (d.locationfrom, d.locationto)
-            AND d.createdat BETWEEN TO_DATE ( :pFrom , 'YYYY-MM-DD') AND TO_DATE ( :pTo , 'YYYY-MM-DD')
+            AND d.createdat BETWEEN TO_DATE (:pfrom, 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD')
             AND d.docstate IN (2, 3)
             AND s.doctype = d.doctype
             AND s.docid = d.id
@@ -57,7 +57,7 @@ INSERT INTO ttfoundquantity (storeloc, article, quantity)
                       FROM ttidgroup tg
                      WHERE tg.article = s.article)
    GROUP BY tl.id, s.article
-         ]]>
+            ]]>
     </sql>
   </element>
 
@@ -94,36 +94,36 @@ ORDER BY s.id
   <element name="rpcoltot">
     <sql>
       <![CDATA[
-SELECT NVL( (SELECT SUM (ts.quantity) FROM ttfoundquantity ts WHERE ts.storeloc = :rpcol.id), 0) sel,
+SELECT NVL( (SELECT SUM (ts.quantity) FROM ttremainsprod ts WHERE ts.storeloc = :rpcol.id), 0) sel,
+       NVL( (SELECT SUM (ts.primecost) FROM ttremainsprod ts WHERE ts.storeloc = :rpcol.id), 0) selsum,
        NVL( (SELECT SUM (tr.quantity) FROM ttremains tr WHERE tr.storeloc = :rpcol.id ), 0) ost
   FROM DUAL
-	]]>
+  	]]>
     </sql>
   </element>
 
   <element name="rpcell">
     <sql>
       <![CDATA[
-SELECT nvl((SELECT SUM (ts.quantity)
-		  FROM ttfoundquantity ts
-		 WHERE ts.storeloc = :rpcol.id AND ts.article = :rprow.article ),0) sel,
-       nvl((SELECT SUM (tr.quantity)
-          FROM ttremains tr
-         WHERE tr.storeloc = :rpcol.id AND tr.article = :rprow.article ),0) ost
+SELECT NVL ( (SELECT SUM (ts.quantity) FROM ttremainsprod ts WHERE ts.storeloc = :rpcol.id AND ts.article = :rprow.article), 0) sel,
+       NVL ( (SELECT SUM (ts.primecost) FROM ttremainsprod ts WHERE ts.storeloc = :rpcol.id AND ts.article = :rprow.article), 0) selsum,
+       NVL ( (SELECT SUM (tr.quantity) FROM ttremains tr WHERE tr.storeloc = :rpcol.id AND tr.article = :rprow.article), 0) ost
   FROM DUAL
-  	]]>
+    	]]>
     </sql>
   </element>
 
     <element name="rpcellst">
     <sql>
       <![CDATA[
-SELECT NVL( (SELECT SUM (ts.quantity) FROM ttfoundquantity ts, smcardassort am
+SELECT NVL( (SELECT SUM (ts.quantity) FROM ttremainsprod ts, smcardassort am
                WHERE ts.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND ts.article = am.article), 0) sel,
+       NVL( (SELECT SUM (ts.primecost) FROM ttremainsprod ts, smcardassort am
+               WHERE ts.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND ts.article = am.article), 0) selsum,        
        NVL( (SELECT SUM (tr.quantity) FROM ttremains tr, smcardassort am
                WHERE tr.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND tr.article = am.article), 0) ost
   FROM DUAL
-  ]]>
+    ]]>
     </sql>
   </element>
 
