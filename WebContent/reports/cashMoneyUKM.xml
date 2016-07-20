@@ -5,7 +5,8 @@
     SELECT t.name, t.kkm_number, SUM(t.tot) tot, SUM(t.nal) nal, SUM(t.bnal) bnal, SUM(t.cert) cert, SUM(t.sertsale) sertsale
       FROM (SELECT tip.number, tip.name, tip.kkm_number, SUM(IF(h.type IN (0, 5), 1, -1) * p.amount) tot, SUM(IF(p.payment_id = 0, 1, 0) * IF(h.type IN (0, 5), 1, -1) * p.amount) nal, SUM(IF(p.payment_id != 0 AND p.payment_name NOT LIKE '%серт%', 1, 0) * IF(h.type IN (0, 5), 1, -1) * p.amount) bnal, SUM(IF(p.payment_id != 0 AND p.payment_name LIKE '%серт%', 1, 0) * IF(h.type IN (0, 5), 1, -1) * p.amount) cert, 0 sertsale
           FROM trm_out_receipt_header h
-            INNER JOIN trm_out_receipt_footer f ON h.cash_id = f.cash_id AND h.id = f.id
+            INNER JOIN trm_out_receipt_footer f USE INDEX (date) ON h.cash_id = f.cash_id AND h.id = f.id
+            	AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d') AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
             INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = h.cash_id
             INNER JOIN trm_out_receipt_payment p ON p.cash_id = h.cash_id AND p.receipt_header = h.id
             LEFT OUTER JOIN trm_out_receipt_payment pp ON p.cash_id = pp.cash_id AND p.receipt_header = pp.receipt_header AND
@@ -15,20 +16,17 @@
             AND h.type IN (0, 5, 1, 4)
             AND f.result = 0
             AND tip.store_id= :pstore
-			AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
-			AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
           GROUP BY tip.number, tip.name, tip.kkm_number
         UNION ALL
         SELECT tip.number, tip.name, tip.kkm_number, 0 tot, 0 nal, 0 bnal, 0 cert, SUM(ri.total * IF(r.type IN (1, 4, 9), -1, 1)) sertsale
           FROM ukmserver.trm_out_receipt_header r
-            INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX (date) ON f.cash_id = r.cash_id AND f.id = r.id
+            INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX (date) ON f.cash_id = r.cash_id AND f.id = r.id 
+            	AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d') AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
             INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id
             INNER JOIN ukmserver.trm_out_receipt_item ri ON ri.cash_id = r.cash_id
               AND ri.receipt_header = r.id AND ri.classif LIKE '.2001.%'
           WHERE f.result = 0
             AND tip.store_id= :pstore
-			AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
-			AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
           GROUP BY tip.number, tip.name, tip.kkm_number) t
       GROUP BY t.number, t.name, t.kkm_number	  
 	]]>

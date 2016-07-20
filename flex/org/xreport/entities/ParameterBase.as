@@ -21,6 +21,7 @@ package org.xreport.entities {
         private var _id:String;
         private var _isList:Boolean;
         private var _isMulti:Boolean;
+        private var _keepTime:Boolean;
         private var _listSql:String;
         private var _name:String;
         private var _src_type:int;
@@ -35,6 +36,13 @@ package org.xreport.entities {
         }
         public function get id():String {
             return _id;
+        }
+
+        public function set keepTime(value:Boolean):void {
+            _keepTime = value;
+        }
+        public function get keepTime():Boolean {
+            return _keepTime;
         }
 
         public function set listSql(value:String):void {
@@ -98,6 +106,7 @@ package org.xreport.entities {
             _id = input.readObject() as String;
             _isList = input.readObject() as Boolean;
             _isMulti = input.readObject() as Boolean;
+            _keepTime = input.readObject() as Boolean;
             _listSql = input.readObject() as String;
             _name = input.readObject() as String;
             _src_type = input.readObject() as int;
@@ -113,6 +122,7 @@ package org.xreport.entities {
             output.writeObject((_id is IPropertyHolder) ? IPropertyHolder(_id).object : _id);
             output.writeObject((_isList is IPropertyHolder) ? IPropertyHolder(_isList).object : _isList);
             output.writeObject((_isMulti is IPropertyHolder) ? IPropertyHolder(_isMulti).object : _isMulti);
+            output.writeObject((_keepTime is IPropertyHolder) ? IPropertyHolder(_keepTime).object : _keepTime);
             output.writeObject((_listSql is IPropertyHolder) ? IPropertyHolder(_listSql).object : _listSql);
             output.writeObject((_name is IPropertyHolder) ? IPropertyHolder(_name).object : _name);
             output.writeObject((_src_type is IPropertyHolder) ? IPropertyHolder(_src_type).object : _src_type);

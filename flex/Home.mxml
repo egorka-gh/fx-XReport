@@ -24,6 +24,7 @@
 			import org.xreport.entities.Welcome;
 			import org.xreport.itemrenderer.ParamDateIR;
 			import org.xreport.itemrenderer.ParamPeriodIR;
+			import org.xreport.itemrenderer.ParamPeriodTIR;
 			import org.xreport.itemrenderer.ParamStoreIR;
 			import org.xreport.itemrenderer.ParamStringIR;
 			import org.xreport.services.WelcomeService;
@@ -147,7 +148,13 @@
 				var classFactory:ClassFactory;
 				switch(p.id){
 					case Parameter.PARAM_PERIOD:{
+						//classFactory = new ClassFactory(ParamPeriodIR);
 						classFactory = new ClassFactory(ParamPeriodIR);
+						break;
+					}
+					case Parameter.PARAM_PERIODT:{
+						//classFactory = new ClassFactory(ParamPeriodIR);
+						classFactory = new ClassFactory(ParamPeriodTIR);
 						break;
 					}
 					case Parameter.PARAM_DATE:{

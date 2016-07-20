@@ -10,6 +10,7 @@ package org.xreport.entities {
     [RemoteClass(alias="org.xreport.entities.Parameter")]
     public class Parameter extends ParameterBase {
 		public static const PARAM_PERIOD:String='period';
+		public static const PARAM_PERIODT:String='periodt';
 		public static const PARAM_DATE:String='pdate';
 		public static const PARAM_STORE:String='pstore';
     }

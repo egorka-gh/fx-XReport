@@ -2,6 +2,7 @@ package org.xreport.util;
 
 public enum ParameterType {
 	PPeriod("period"),
+	PPeriodT("periodt"),
 	PDate("pdate"),
 	PStore("pstore");
 	

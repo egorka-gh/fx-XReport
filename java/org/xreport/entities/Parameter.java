@@ -31,6 +31,9 @@ public class Parameter extends AbstractExternalizedBean{
     private String listSql;
 
     @Transient
+    private boolean keepTime;
+
+    @Transient
     private Date valFrom;
 
     @Transient
@@ -113,6 +116,12 @@ public class Parameter extends AbstractExternalizedBean{
 	}
 	public void setListSql(String listSql) {
 		this.listSql = listSql;
+	}
+	public boolean isKeepTime() {
+		return keepTime;
+	}
+	public void setKeepTime(boolean keepTime) {
+		this.keepTime = keepTime;
 	}
 	
 }

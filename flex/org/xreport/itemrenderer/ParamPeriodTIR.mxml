@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false">
+	<fx:Script>
+		<![CDATA[
+			import org.xreport.entities.Parameter;
+			
+			[Bindable]
+			private var param:Parameter;
+
+			[Bindable]
+			private var dayNames:Array=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+			[Bindable]
+			private var mnthNames:Array=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+			
+			[Bindable]
+			private var hoursFrom:int;
+			[Bindable]
+			private var minFrom:int;
+			[Bindable]
+			private var hoursTo:int;
+			[Bindable]
+			private var minTo:int;
+
+			override public function set data(value:Object):void{
+				super.data = value;
+				param=value as Parameter; 
+				if(param){
+					param.keepTime=true;
+					var dt:Date= new Date();
+					if(!param.valFrom){
+						param.valFrom=new Date(dt.fullYear,dt.month, 1);
+					}else{
+						hoursFrom=param.valFrom.hours;
+						minFrom=param.valFrom.minutes
+					}
+					if(!param.valTo){
+						param.valTo=new Date(dt.fullYear,dt.month, dt.date);
+					}else{
+						hoursTo=param.valTo.hours;
+						minTo=param.valTo.minutes
+					}
+				}
+			}
+			
+			private function buildFrom():void{
+				if(!param) return;
+				param.valFrom= new Date(dcFrom.selectedDate.fullYear,dcFrom.selectedDate.month,dcFrom.selectedDate.date,nsHoursFrom.value, nsMinFrom.value);
+			}
+			private function buildTo():void{
+				if(!param) return;
+				param.valTo= new Date(dcTo.selectedDate.fullYear,dcTo.selectedDate.month,dcTo.selectedDate.date,nsHoursTo.value, nsMinTo.value);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:DateTimeFormatter id="dFmt" dateTimePattern="dd.MM.yy HH:mm"/>
+	</fx:Declarations>
+	
+	<s:HGroup gap="5" horizontalAlign="left" verticalAlign="middle">
+
+		<s:Label text="{param.name}"/>
+		<s:Spacer width="5"/>
+		
+		<s:Label text="C"/>
+		<mx:DateField id="dcFrom" selectedDate="{param.valFrom}" formatString="DD.MM.YY" dayNames="{dayNames}" firstDayOfWeek="1" monthNames="{mnthNames}" change="{buildFrom()}"/>
+		<s:Spacer width="2"/>
+		<s:NumericStepper id="nsHoursFrom" minimum="0" value="{hoursFrom}" maximum="23" snapInterval="1" width="40" change="{buildFrom()}"/>
+		<s:Label text=":" fontWeight="bold"/>
+		<s:NumericStepper id="nsMinFrom" minimum="0" value="{minFrom}" maximum="59" snapInterval="1" width="40" change="{buildFrom()}"/>
+		<s:Spacer width="5"/>
+
+		<s:Label text="По"/>
+		<mx:DateField id="dcTo" selectedDate="{param.valTo}" formatString="DD.MM.YY" dayNames="{dayNames}" firstDayOfWeek="1" monthNames="{mnthNames}" change="buildTo()"/>
+		<s:Spacer width="2"/>
+		<s:NumericStepper id="nsHoursTo" minimum="0" maximum="23" value="{hoursTo}" snapInterval="1" width="40" change="buildTo()"/>
+		<s:Label text=":" fontWeight="bold"/>
+		<s:NumericStepper id="nsMinTo" minimum="0" maximum="59" value="{minTo}" snapInterval="1" width="40" change="buildTo()"/>
+		
+		<!--<s:Label text="{dFmt.format(param.valFrom)} - {dFmt.format(param.valTo)}"/>-->
+	</s:HGroup>
+	
+</s:ItemRenderer>

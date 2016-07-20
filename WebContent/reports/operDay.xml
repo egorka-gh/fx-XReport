@@ -10,7 +10,7 @@ SELECT
   login.user_name AS cashiername,
   mo.date operday,
   mo.amount AS sum,
-  CONCAT('                         ',xrep.num_to_text(mo.amount)) spellsum,
+  CONCAT('                         ',xrep.num_to_text(ROUND(mo.amount,2))) spellsum,
   tis.accountant,
   tis.accountant_position
 FROM

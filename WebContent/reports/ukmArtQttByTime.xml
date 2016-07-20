@@ -1,0 +1,18 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+SELECT ri.item articul, ri.name artname, SUM(ri.quantity * IF(r.type IN (1, 4, 9), -1, 1)) itqtt, SUM((ri.total + ri.discount) * IF(r.type IN (1, 4, 9), -1, 1)) itemtot, SUM(ri.discount * IF(r.type IN (1, 4, 9), 1, -1)) itemdsc
+  FROM ukmserver.trm_out_receipt_header r
+    INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX (date) ON f.cash_id = r.cash_id AND f.id = r.id AND f.`date` >= :pFrom AND f.`date` <= :pTo
+    INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id
+    INNER JOIN ukmserver.trm_out_receipt_item ri ON ri.cash_id = r.cash_id AND ri.receipt_header = r.id
+  WHERE f.result = 0
+    AND tip.store_id = :pstore
+    AND ri.classif LIKE CONCAT('.', :partclass, '%')
+  GROUP BY ri.item, ri.name
+	]]>
+    </sql>
+  </element>
+
+</element-set>
