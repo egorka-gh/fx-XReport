@@ -21,6 +21,7 @@ package org.xreport.entities {
         private var _error:String;
         private var _hasError:Boolean;
         private var _id:String;
+        private var _path:String;
         private var _url:String;
 
         public function set error(value:String):void {
@@ -44,6 +45,13 @@ package org.xreport.entities {
             return _id;
         }
 
+        public function set path(value:String):void {
+            _path = value;
+        }
+        public function get path():String {
+            return _path;
+        }
+
         public function set url(value:String):void {
             _url = value;
         }
@@ -56,6 +64,7 @@ package org.xreport.entities {
             _error = input.readObject() as String;
             _hasError = input.readObject() as Boolean;
             _id = input.readObject() as String;
+            _path = input.readObject() as String;
             _url = input.readObject() as String;
         }
 
@@ -64,6 +73,7 @@ package org.xreport.entities {
             output.writeObject((_error is IPropertyHolder) ? IPropertyHolder(_error).object : _error);
             output.writeObject((_hasError is IPropertyHolder) ? IPropertyHolder(_hasError).object : _hasError);
             output.writeObject((_id is IPropertyHolder) ? IPropertyHolder(_id).object : _id);
+            output.writeObject((_path is IPropertyHolder) ? IPropertyHolder(_path).object : _path);
             output.writeObject((_url is IPropertyHolder) ? IPropertyHolder(_url).object : _url);
         }
     }

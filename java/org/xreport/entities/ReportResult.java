@@ -6,6 +6,7 @@ public class ReportResult extends AbstractExternalizedBean {
     private String id;
     private boolean hasError;
     private String url;
+    private String path;
     private String error;
     
 	public String getId() {
@@ -36,6 +37,12 @@ public class ReportResult extends AbstractExternalizedBean {
 	public void assignError(String error) {
 		hasError=true;
 		this.error = error;
+	}
+	public String getPath() {
+		return path;
+	}
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 }

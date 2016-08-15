@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -21,12 +22,15 @@ import org.granite.context.GraniteContext;
 import org.granite.messaging.webapp.HttpGraniteContext;
 import org.sansorm.OrmElf;
 import org.sansorm.SqlClosure;
+import org.sansorm.SqlClosureElf;
+import org.sansorm.internal.OrmWriter;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xreport.constants.Constants;
 import org.xreport.entities.Parameter;
 import org.xreport.entities.Report;
 import org.xreport.entities.ReportResult;
+import org.xreport.entities.ReportSchedule;
 import org.xreport.entities.Source;
 import org.xreport.entities.SourceType;
 import org.xreport.entities.UkmStore;
@@ -129,8 +133,63 @@ public class XReportServiceImpl implements XReportService {
 		}.execute();		
 	}
 
+	public List<ReportSchedule> getSchedule() {
+		return new SqlClosure<List<ReportSchedule>>(ConnectionFactory.getDataSource()) {
+			public List<ReportSchedule> execute(Connection connection) {
+				try {
+					String sql="SELECT * FROM xrep.report_shedule rs"+
+								 " WHERE rs.active = 1"+
+								   " AND rs.week_day IN (0, DAYOFWEEK(CURRENT_DATE()) + 1)"+
+								   " AND rs.run_after_hour <= HOUR(NOW())"+
+								   " AND (rs.last_run IS NULL OR rs.last_run < CURRENT_DATE())"+
+								   " AND rs.send_to IS NOT NULL";
+					PreparedStatement pstmt = connection.prepareStatement(sql);
+					return OrmElf.statementToList(pstmt, ReportSchedule.class);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}.execute();		
+	}
+
+	public void setScheduleComplited(int sheduleId) {
+		String sql="UPDATE xrep.report_shedule rs SET rs.last_run=NOW() WHERE rs.id=?";
+		Connection connection = null;
+		try {
+			connection=ConnectionFactory.getConnection();
+			OrmWriter.executeUpdate(connection, sql, sheduleId);
+		} catch (SQLException e) {
+			//result.setErrMesage(e.getMessage());
+			e.printStackTrace();
+		}finally{
+			SqlClosureElf.quietClose(connection);
+		}
+	}
+	
 	@Override
-	public ReportResult buildReport(final Report report, String source) {
+	public ReportResult buildReport(final Report report, String source){
+		HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
+
+		String reportPath = ctx.getServletContext().getRealPath("/");
+		reportPath+="/"+Constants.REPORTS_FOLDER+"/";
+
+		String outPath=(String) ctx.getServletContext().getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);
+		
+		String outURL = (String) ctx.getServletContext().getAttribute(Constants.SESSION_ID_ATTRIBUTE);
+		outURL=Constants.URL_REPORT_BASE_URL+"/"+outURL+"/";
+
+		return buildInternal(report,source,"", reportPath, outPath, outURL);
+	}
+
+	public ReportResult buildLocal(String reportId, String source, String outSuffix, String reportPath, String outPath) {
+		Report report= new Report();
+		report.setId(reportId);
+		report.setParameters(null);
+		return buildInternal(report,source,outSuffix, reportPath, outPath, "");
+	}
+
+	protected ReportResult buildInternal(final Report report, String source, String outSuffix, String reportPath, String outPath, String outURL){ // , ServletContext servletContext) { //not a case
 		ReportResult result= new ReportResult();
 		if(report == null){
 			result.assignError("null report");
@@ -138,20 +197,22 @@ public class XReportServiceImpl implements XReportService {
 		}
 		result.setId(report.getId());
 		
-		HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
+		//HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
 		
-		String outPath=(String)ctx.getServletContext().getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);
+		//String outPath=(String) servletContext.getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);
 		
-		String rootPath = ctx.getServletContext().getRealPath("/");
-		rootPath+="/"+Constants.REPORTS_FOLDER+"/";
+		//String rootPath = servletContext.getRealPath("/");
+		//rootPath+="/"+Constants.REPORTS_FOLDER+"/";
 		
-		String outputUrl = (String)ctx.getServletContext().getAttribute(Constants.SESSION_ID_ATTRIBUTE);
-		outputUrl=Constants.URL_REPORT_BASE_URL+"/"+outputUrl+"/"+report.getId()+ Constants.REPORT_EXT;
+		//String outputUrl = (String) servletContext.getAttribute(Constants.SESSION_ID_ATTRIBUTE);
+		//outputUrl=Constants.URL_REPORT_BASE_URL+"/"+outputUrl+"/"+report.getId()+ Constants.REPORT_EXT;
+		String outputUrl=outURL+report.getId()+ Constants.REPORT_EXT;
 		Date dts= new Date();
 		outputUrl+="?"+dts.getTime();
 		result.setUrl(outputUrl);
 		
-		String outputName = outPath+report.getId()+ Constants.REPORT_EXT;
+		String outputName = outPath+report.getId()+outSuffix+ Constants.REPORT_EXT;
+		result.setPath(outputName);
 		File outFile = new File(outputName);
 		
 		OutputStream outputStream=null;
@@ -161,8 +222,8 @@ public class XReportServiceImpl implements XReportService {
 			result.assignError("Can't open: "+outFile);
 		}
 		
-        String templateName=rootPath+report.getId()+ Constants.REPORT_EXT;
-        String templateXml=rootPath+report.getId()+ Constants.XML_EXT;
+        String templateName=reportPath+report.getId()+ Constants.REPORT_EXT;
+        String templateXml=reportPath+report.getId()+ Constants.XML_EXT;
 		
 		XlsReporter reporter = new XlsReporter();
 		
@@ -245,5 +306,4 @@ public class XReportServiceImpl implements XReportService {
 		*/
 	}
 
-	
 }

@@ -1,0 +1,26 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+    SELECT it.article articul, c.shortname artname, SUM (DECODE (oc.opcode, 1, 1, -1) * it.quantity) itqtt
+    FROM smonlinechecks oc, smonlinecheckitems it, smcard c
+   WHERE     oc.printtime BETWEEN TO_DATE ( :pFrom, 'YYYY-MM-DD HH24::MI::SS') AND TO_DATE ( :pTo, 'YYYY-MM-DD HH24::MI::SS')
+         AND NOT EXISTS
+                (SELECT 1
+                   FROM smcashz z
+                  WHERE z.locid = oc.locid AND z.desknum = oc.desknum AND z.znum = oc.znum)
+         AND it.locid = oc.locid
+         AND it.desknum = oc.desknum
+         AND it.znum = oc.znum
+         AND it.checknum = oc.checknum
+         AND c.article = it.article
+         AND EXISTS
+                (SELECT 1
+                   FROM sacardclass cc
+                  WHERE cc.id = c.idclass AND cc.tree LIKE :partclass || '%')
+GROUP BY it.article, c.shortname
+	]]>
+    </sql>
+  </element>
+
+</element-set>
