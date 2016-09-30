@@ -6,10 +6,12 @@ import java.util.Properties;
 
 import javax.activation.DataHandler;
 import javax.activation.FileDataSource;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -31,6 +33,7 @@ public class ScheduledReportRunner {
 	private String smtpHost="";
 	private String smtpPort="";
 	
+	private String smtpFrom="";
 	private String smtpUser="";
 	private String smtpPwd="";
 	
@@ -42,9 +45,12 @@ public class ScheduledReportRunner {
 		if(servletContext==null){
 			System.out.println("ScheduledReportRunner.checkShedule Null Context");
 			return;
-		}else{
+		}
+		/*
+		else{
 			System.out.println("ScheduledReportRunner.checkShedule started");
 		}
+		*/
 		
 		/**/
 		XReportServiceImpl service= new XReportServiceImpl();
@@ -79,22 +85,34 @@ public class ScheduledReportRunner {
 	}
 	
 	private void sendmail(String sendTo, String subject, String body,String  attach){
+		// DomainAuthenticator will concatenate the domain and username,
+        // separated by "\" - see below
+        DomainAuthenticator auth = new DomainAuthenticator(smtpDomain, smtpUser, smtpPwd);
+		
 		Properties props = new Properties();
         props.setProperty("mail.transport.protocol", "smtp");
         props.put("mail.smtp.allow8bitmime", "true");
+        
+        props.setProperty("mail.smtp.submitter", auth.getPasswordAuthentication().getUserName());
+        props.setProperty("mail.smtp.auth", "true");
+        
         props.setProperty("mail.host", smtpHost);
+        /*
         props.setProperty("mail.user", smtpUser);
         if ((smtpPwd != null) && (smtpPwd.length()>0)){
+            props.setProperty("mail.smtp.auth", "true");
         	props.setProperty("mail.password", smtpPwd);
         }
         Session session = Session.getDefaultInstance(props, null);//javax.mail.Session
+        */
+        Session session = Session.getInstance(props, auth);
         try{
             // Create a message
             MimeMessage msg = new MimeMessage(session);
             // extracts the senders and adds them to the message
             // Sender is a comma-separated list of e-mail addresses as per RFC822
             {
-               InternetAddress[] theAddresses = InternetAddress.parse(smtpUser);
+               InternetAddress[] theAddresses = InternetAddress.parse(smtpFrom);
                msg.addFrom(theAddresses);
             }
             // Extract the recipients and assign them to the message.
@@ -184,5 +202,35 @@ public class ScheduledReportRunner {
 	public void setSmtpPwd(String smtpPwd) {
 		this.smtpPwd = smtpPwd;
 	}
+
+	public String getSmtpFrom() {
+		return smtpFrom;
+	}
+
+	public void setSmtpFrom(String smtpFrom) {
+		this.smtpFrom = smtpFrom;
+	}
+
+	private static class DomainAuthenticator extends Authenticator {
+
+        private String domain;
+        private String username;
+        private String password;
+
+        public DomainAuthenticator(String domain, String username, String password) {
+              super();
+              this.domain = domain;
+              this.username = username;
+              this.password = password;
+        }
+
+        public PasswordAuthentication getPasswordAuthentication() {
+              StringBuilder user = new StringBuilder();
+              if(this.domain!=null && !this.domain.isEmpty()) user.append(this.domain).append('\\');
+              user.append(username);
+              return new PasswordAuthentication(user.toString(), this.password);
+        }
+
+  }
 
 }

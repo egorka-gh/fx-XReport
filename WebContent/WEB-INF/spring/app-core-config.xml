@@ -25,15 +25,18 @@
     
     <bean id="scheduledReportRunner" class="org.xreport.services.ScheduledReportRunner">
   		<property name="smtpHost" value="192.168.30.12" /> 
-  		<property name="smtpUser" value="igorz@bigzz.by" /> 
+  		<property name="smtpDomain" value="bigzz" /> 
+  		<property name="smtpUser" value="yesterday" /> 
+  		<property name="smtpPwd" value="12345" /> 
+  		<property name="smtpFrom" value="yesterday@bigzz.by" /> 
 	</bean>
     
     <task:scheduled-tasks scheduler="myScheduler">
-		<task:scheduled ref="scheduledReportRunner" method="checkShedule" cron="0 0 * * * *"/>
+		<task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="30000"/>
 	</task:scheduled-tasks>
 
 <!-- <task:scheduled ref="scheduledReportRunner" method="checkShedule"  cron="0 0 * * * *"/> -->
-<!-- <task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="120000"/> -->
+<!-- <task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="30000"/> -->
 	<task:scheduler id="myScheduler" pool-size="10"/>
 
 </beans>
