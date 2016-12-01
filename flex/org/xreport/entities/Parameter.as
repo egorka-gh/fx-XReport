@@ -13,5 +13,6 @@ package org.xreport.entities {
 		public static const PARAM_PERIODT:String='periodt';
 		public static const PARAM_DATE:String='pdate';
 		public static const PARAM_STORE:String='pstore';
+		public static const PARAM_CAFE:String='pcafe';
     }
 }

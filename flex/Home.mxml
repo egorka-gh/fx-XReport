@@ -22,6 +22,7 @@
 			import org.xreport.entities.ReportResult;
 			import org.xreport.entities.Source;
 			import org.xreport.entities.Welcome;
+			import org.xreport.itemrenderer.ParamCafeIR;
 			import org.xreport.itemrenderer.ParamDateIR;
 			import org.xreport.itemrenderer.ParamPeriodIR;
 			import org.xreport.itemrenderer.ParamPeriodTIR;
@@ -163,6 +164,10 @@
 					}
 					case Parameter.PARAM_STORE:{
 						classFactory = new ClassFactory(ParamStoreIR);
+						break;
+					}
+					case Parameter.PARAM_CAFE:{
+						classFactory = new ClassFactory(ParamCafeIR);
 						break;
 					}
 					default:{
