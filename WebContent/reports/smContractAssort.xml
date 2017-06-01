@@ -1,0 +1,29 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+  SELECT ac.tree, sc.article, c.shortname
+    FROM smspecco sc, sacardassort ac, smcardassort am, smcard c
+   WHERE     sc.doctype = 'CO'
+         AND sc.docid = :pcontract
+         AND am.article = sc.article
+         AND am.idassort = ac.id
+         AND ac.tree LIKE :passort || '%'
+         AND c.article = sc.article
+ORDER BY ac.tree, sc.article
+	]]>
+    </sql>
+  </element>
+  <element name="rptotal">
+    <sql>
+      <![CDATA[
+  SELECT ac.tree || ' ' || ac.name tree, COUNT (*) arts
+    FROM smspecco sc, sacardassort ac, smcardassort am
+   WHERE sc.doctype = 'CO' AND sc.docid = :pcontract AND am.article = sc.article AND am.idassort = ac.id AND ac.tree LIKE :passort || '%'
+GROUP BY ac.tree || ' ' || ac.name
+ORDER BY 2 DESC      
+	]]>
+    </sql>
+  </element>
+
+</element-set>
