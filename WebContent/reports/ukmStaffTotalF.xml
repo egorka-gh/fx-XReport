@@ -1,0 +1,24 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+SELECT cl.id, CONCAT_WS(' ', cl.sur_name, cl.name, cl.patronymic) fio, be.card, bd.dept_name, bp.position_name,
+  COUNT(*) chk, SUM(s.amount * IF(r.type IN (1, 4, 9), -1, 1)) tot
+  FROM ukmserver.trm_out_receipt_header r
+    INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX(date) ON f.cash_id = r.cash_id AND f.id = r.id AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d') AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
+    INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
+    INNER JOIN ukmserver.trm_in_clients cl ON cl.id = r.client
+    INNER JOIN ebonus.badge_level bl ON bl.ukm_group = cl.classifclient
+    INNER JOIN ebonus.badge_ext be ON cl.id = be.id
+    INNER JOIN ebonus.badge_dept bd ON be.dept = bd.id
+    INNER JOIN ebonus.badge_position bp ON be.pos=bp.id
+  WHERE f.result = 0
+   -- AND (time (f.`date`) BETWEEN '08::30::00' AND '13::00::00' OR time (f.`date`) BETWEEN '13::30::00' AND '17::00::00')
+   -- AND DAYOFWEEK(f.`date`) NOT IN (1, 7)
+  GROUP BY cl.id
+  ORDER BY bd.dept_name, CONCAT_WS(' ', cl.sur_name, cl.name, cl.patronymic)
+	]]>
+    </sql>
+  </element>
+
+</element-set>

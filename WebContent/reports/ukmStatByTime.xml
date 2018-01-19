@@ -1,0 +1,43 @@
+<element-set>
+
+  <element name="LoadWeekDays" before-report="1">
+    <sql>
+      <![CDATA[    
+        CALL ebonus.weekdays_cnt(:pFrom, :pTo);
+      ]]>
+    </sql>
+  </element>
+
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+SELECT DATE_FORMAT(f.`date`, '%H') hwk,
+  SUM(IF(WEEKDAY(f.`date`) = 0, 1, 0)) / @days_cnt0 chk0,
+  SUM(IF(WEEKDAY(f.`date`) = 0, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt0 tot0,
+  SUM(IF(WEEKDAY(f.`date`) = 1, 1, 0)) / @days_cnt1 chk1,
+  SUM(IF(WEEKDAY(f.`date`) = 1, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt1 tot1,
+  SUM(IF(WEEKDAY(f.`date`) = 2, 1, 0)) / @days_cnt2 chk2,
+  SUM(IF(WEEKDAY(f.`date`) = 2, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt2 tot2,
+  SUM(IF(WEEKDAY(f.`date`) = 3, 1, 0)) / @days_cnt3 chk3,
+  SUM(IF(WEEKDAY(f.`date`) = 3, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt3 tot3,
+  SUM(IF(WEEKDAY(f.`date`) = 4, 1, 0)) / @days_cnt4 chk4,
+  SUM(IF(WEEKDAY(f.`date`) = 4, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt4 tot4,
+  SUM(IF(WEEKDAY(f.`date`) = 5, 1, 0)) / @days_cnt5 chk5,
+  SUM(IF(WEEKDAY(f.`date`) = 5, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt5 tot5,
+  SUM(IF(WEEKDAY(f.`date`) = 6, 1, 0)) / @days_cnt6 chk6,
+  SUM(IF(WEEKDAY(f.`date`) = 6, 1, 0) * s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt6 tot6,
+  COUNT(*) / @days_cnt chk,
+  SUM(s.amount * IF(r.type IN (1, 4, 9), -1, 1)) / @days_cnt tot
+  FROM ukmserver.trm_in_pos tip
+    INNER JOIN ukmserver.trm_out_receipt_header r ON tip.cash_id = r.cash_id
+    INNER JOIN ukmserver.trm_out_receipt_footer f ON f.cash_id = r.cash_id AND f.id = r.id AND f.result = 0
+      AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
+      AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
+    INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
+  WHERE tip.store_id = :pstore
+  GROUP BY DATE_FORMAT(f.`date`, '%H')       
+	]]>
+    </sql>
+  </element>
+
+</element-set>

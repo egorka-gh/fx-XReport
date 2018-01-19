@@ -19,6 +19,7 @@ FROM
   INNER JOIN ukmserver.trm_out_moneyoperation mo ON pos.cash_id = mo.cash_id
   INNER JOIN ukmserver.trm_out_login login ON login.cash_id = mo.cash_id AND login.id = mo.login
 WHERE mo.date>= STR_TO_DATE( :pdate , '%Y-%m-%d') AND mo.date<DATE_ADD(STR_TO_DATE( :pdate , '%Y-%m-%d'),INTERVAL 1 DAY)
+  AND mo.type!=100
   AND tis.store_id= :pstore
 ORDER BY pos.number,mo.date
 	]]>
@@ -27,7 +28,7 @@ ORDER BY pos.number,mo.date
   <element name="rptotal">
     <sql>
       <![CDATA[    
-SELECT pos.number term, DATE_FORMAT(mo.date, '%Y-%m-%d') shiftdate, SUM(mo.amount) total
+SELECT pos.number term, DATE_FORMAT(mo.date, '%Y-%m-%d') shiftdate, SUM(IF(mo.type=100,-1,1)* mo.amount) total
 FROM ukmserver.trm_out_moneyoperation mo
   INNER JOIN ukmserver.trm_in_pos pos ON pos.cash_id = mo.cash_id
 WHERE mo.date >= STR_TO_DATE( :pdate , '%Y-%m-%d') AND mo.date < DATE_ADD(STR_TO_DATE( :pdate , '%Y-%m-%d'), INTERVAL 1 DAY) AND pos.store_id = :pstore
