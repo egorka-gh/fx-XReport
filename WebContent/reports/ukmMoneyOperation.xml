@@ -3,7 +3,7 @@
   <element name="rptotal">
     <sql>
       <![CDATA[
-SELECT pos.number term, DATE_FORMAT(mo.date, '%d.%m.%y %H::%i::%S') shiftdate, mo.amount total
+SELECT pos.number term, DATE_FORMAT(mo.date, '%d.%m.%y %H::%i::%S') shiftdate, IF(mo.type=100,-1,1)* mo.amount total
 FROM ukmserver.trm_out_moneyoperation mo
   INNER JOIN ukmserver.trm_in_pos pos ON pos.cash_id = mo.cash_id
 WHERE mo.date >= :pFrom AND mo.date <= :pTo AND pos.store_id = :pstore
