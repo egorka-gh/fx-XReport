@@ -1,0 +1,27 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+SELECT tis.name store, tis.store_id, LPAD(format(g.n,0),2,'0')  hh, t.chk, t.tot, t.dsc
+  FROM generator_256 g
+    INNER JOIN ukmserver.trm_in_store tis
+    LEFT OUTER JOIN (SELECT tip.store_id, DATE_FORMAT(f.`date`, '%H') hh, COUNT(*) chk, SUM(s.amount * IF(r.type IN (1, 4, 9), -1, 1)) tot, SUM(s.discounts_amount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
+        FROM ukmserver.trm_out_receipt_header r
+          INNER JOIN ukmserver.trm_out_receipt_footer f USE INDEX (date) ON f.cash_id = r.cash_id AND f.id = r.id
+            AND f.`date` >= DATE_ADD(CURRENT_DATE(), INTERVAL 3 HOUR)
+            AND f.`date` < DATE_ADD(CURRENT_DATE(), INTERVAL 1 DAY)
+          INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id
+          --        INNER JOIN ukmserver.trm_in_store tis ON tis.store_id = tip.store_id
+          INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
+        WHERE f.result = 0
+          AND tip.store_id NOT IN (13002, 13003)
+        GROUP BY tip.store_id, DATE_FORMAT(f.`date`, '%H')) t ON g.n = t.hh AND tis.store_id = t.store_id
+  WHERE g.n BETWEEN 8 AND 23
+    AND tis.store_id NOT IN (13002, 13003, 3002, 13005)
+  ORDER BY tis.name, LPAD(format(g.n,0),2,'0') 
+      	]]>
+    </sql>
+  </element>
+
+
+</element-set>

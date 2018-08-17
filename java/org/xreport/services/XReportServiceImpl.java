@@ -136,12 +136,15 @@ public class XReportServiceImpl implements XReportService {
 		return new SqlClosure<List<ReportSchedule>>(ConnectionFactory.getDataSource()) {
 			public List<ReportSchedule> execute(Connection connection) {
 				try {
+					/*
 					String sql="SELECT * FROM xrep.report_shedule rs"+
 								 " WHERE rs.active = 1"+
 								   " AND rs.week_day IN (0, DAYOFWEEK(CURRENT_DATE()) + 1)"+
 								   " AND rs.run_after_hour <= HOUR(NOW())"+
 								   " AND (rs.last_run IS NULL OR rs.last_run < CURRENT_DATE())"+
 								   " AND rs.send_to IS NOT NULL";
+								   */
+					String sql="SELECT * FROM vrun_shedule";
 					PreparedStatement pstmt = connection.prepareStatement(sql);
 					return OrmElf.statementToList(pstmt, ReportSchedule.class);
 				} catch (SQLException e) {

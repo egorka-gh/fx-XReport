@@ -26,8 +26,17 @@ public class ReportSchedule extends AbstractExternalizedBean {
     @Column(name="week_day")
     private int week_day;
 
+    @Column(name="run_type")
+    private int run_type;
+
     @Column(name="run_after_hour")
     private int run_after_hour;
+    
+    @Column(name="run_date")
+    private Date run_date;
+    
+    @Column(name="run_repeat")
+    private boolean run_repeat;
 
     @Column(name="last_run")
     private Date last_run;
@@ -108,5 +117,29 @@ public class ReportSchedule extends AbstractExternalizedBean {
 
 	public void setLabel(String label) {
 		this.label = label;
+	}
+
+	public int getRun_type() {
+		return run_type;
+	}
+
+	public void setRun_type(int run_type) {
+		this.run_type = run_type;
+	}
+
+	public Date getRun_date() {
+		return run_date;
+	}
+
+	public void setRun_date(Date run_date) {
+		this.run_date = run_date;
+	}
+
+	public boolean isRun_repeat() {
+		return run_repeat;
+	}
+
+	public void setRun_repeat(boolean run_repeat) {
+		this.run_repeat = run_repeat;
 	}
 }

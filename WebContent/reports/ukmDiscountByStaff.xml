@@ -1,0 +1,39 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+SELECT tis.name store, COUNT(*) chk, SUM(s.amount * IF(r.type IN (1, 4, 9), -1, 1)) tot, SUM(s.discounts_amount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
+FROM ukmserver.trm_out_receipt_header r
+  INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id 
+  INNER JOIN ukmserver.trm_in_store tis ON tis.store_id=tip.store_id
+  INNER JOIN ukmserver.trm_out_receipt_footer f ON f.cash_id = r.cash_id AND f.id = r.id
+  INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
+  INNER JOIN ukmserver.trm_in_clients cl ON cl.id = r.client AND cl.classifclient IN (4,5)
+WHERE f.result = 0
+AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
+AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
+GROUP BY tis.name
+	]]>
+    </sql>
+  </element>
+
+  <element name="rptype">
+    <sql>
+      <![CDATA[
+SELECT tis.name store, tidt.name dscname, SUM(rd.amount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
+  FROM ukmserver.trm_out_receipt_header r
+    INNER JOIN ukmserver.trm_out_receipt_footer f ON f.cash_id = r.cash_id AND f.id = r.id
+    INNER JOIN ukmserver.trm_out_receipt_discounts rd ON rd.cash_id = r.cash_id AND rd.receipt_header = r.id AND rd.amount!= 0
+    INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = r.cash_id
+    INNER JOIN ukmserver.trm_in_store tis ON tis.store_id = tip.store_id
+    INNER JOIN ukmserver.trm_in_discount_types tidt ON tidt.id = rd.discount_type
+  INNER JOIN ukmserver.trm_in_clients cl ON cl.id = r.client AND cl.classifclient IN (4,5)
+  WHERE f.result = 0
+    AND f.`date` >= STR_TO_DATE(:pFrom, '%Y-%m-%d')
+    AND f.`date` < DATE_ADD(STR_TO_DATE(:pTo, '%Y-%m-%d'), INTERVAL 1 DAY)
+  GROUP BY tis.name, tidt.name
+	]]>
+    </sql>
+  </element>
+
+</element-set>

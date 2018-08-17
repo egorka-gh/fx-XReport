@@ -24,6 +24,9 @@ package org.xreport.entities {
         private var _last_run:Date;
         private var _report:String;
         private var _run_after_hour:int;
+        private var _run_date:Date;
+        private var _run_repeat:Boolean;
+        private var _run_type:int;
         private var _send_to:String;
         private var _source:String;
         private var _week_day:int;
@@ -70,6 +73,27 @@ package org.xreport.entities {
             return _run_after_hour;
         }
 
+        public function set run_date(value:Date):void {
+            _run_date = value;
+        }
+        public function get run_date():Date {
+            return _run_date;
+        }
+
+        public function set run_repeat(value:Boolean):void {
+            _run_repeat = value;
+        }
+        public function get run_repeat():Boolean {
+            return _run_repeat;
+        }
+
+        public function set run_type(value:int):void {
+            _run_type = value;
+        }
+        public function get run_type():int {
+            return _run_type;
+        }
+
         public function set send_to(value:String):void {
             _send_to = value;
         }
@@ -99,6 +123,9 @@ package org.xreport.entities {
             _last_run = input.readObject() as Date;
             _report = input.readObject() as String;
             _run_after_hour = input.readObject() as int;
+            _run_date = input.readObject() as Date;
+            _run_repeat = input.readObject() as Boolean;
+            _run_type = input.readObject() as int;
             _send_to = input.readObject() as String;
             _source = input.readObject() as String;
             _week_day = input.readObject() as int;
@@ -112,6 +139,9 @@ package org.xreport.entities {
             output.writeObject((_last_run is IPropertyHolder) ? IPropertyHolder(_last_run).object : _last_run);
             output.writeObject((_report is IPropertyHolder) ? IPropertyHolder(_report).object : _report);
             output.writeObject((_run_after_hour is IPropertyHolder) ? IPropertyHolder(_run_after_hour).object : _run_after_hour);
+            output.writeObject((_run_date is IPropertyHolder) ? IPropertyHolder(_run_date).object : _run_date);
+            output.writeObject((_run_repeat is IPropertyHolder) ? IPropertyHolder(_run_repeat).object : _run_repeat);
+            output.writeObject((_run_type is IPropertyHolder) ? IPropertyHolder(_run_type).object : _run_type);
             output.writeObject((_send_to is IPropertyHolder) ? IPropertyHolder(_send_to).object : _send_to);
             output.writeObject((_source is IPropertyHolder) ? IPropertyHolder(_source).object : _source);
             output.writeObject((_week_day is IPropertyHolder) ? IPropertyHolder(_week_day).object : _week_day);
