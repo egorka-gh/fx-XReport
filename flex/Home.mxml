@@ -26,6 +26,7 @@
 			import org.xreport.itemrenderer.ParamDateIR;
 			import org.xreport.itemrenderer.ParamPeriodIR;
 			import org.xreport.itemrenderer.ParamPeriodTIR;
+			import org.xreport.itemrenderer.ParamSqlListIR;
 			import org.xreport.itemrenderer.ParamStoreIR;
 			import org.xreport.itemrenderer.ParamStringIR;
 			import org.xreport.services.WelcomeService;
@@ -171,7 +172,11 @@
 						break;
 					}
 					default:{
-						classFactory = new ClassFactory(ParamStringIR);
+						if(p.listType==1 ){
+							classFactory = new ClassFactory(ParamSqlListIR);
+						}else{
+							classFactory = new ClassFactory(ParamStringIR);
+						}
 						break;
 					}
 				}

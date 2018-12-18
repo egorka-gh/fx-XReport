@@ -36,6 +36,17 @@ package org.xreport.services {
                 throw new Error("Illegal argument to remote call (last argument should be Function or ITideResponder): " + resultHandler);
         }    
         
+        public function getListInt(arg0:String, arg1:String, resultHandler:Object = null, faultHandler:Function = null):AsyncToken {
+            if (faultHandler != null)
+                return callProperty("getListInt", arg0, arg1, resultHandler, faultHandler) as AsyncToken;
+            else if (resultHandler is Function || resultHandler is ITideResponder)
+                return callProperty("getListInt", arg0, arg1, resultHandler) as AsyncToken;
+            else if (resultHandler == null)
+                return callProperty("getListInt", arg0, arg1) as AsyncToken;
+            else
+                throw new Error("Illegal argument to remote call (last argument should be Function or ITideResponder): " + resultHandler);
+        }    
+        
         public function getReportParams(arg0:String, resultHandler:Object = null, faultHandler:Function = null):AsyncToken {
             if (faultHandler != null)
                 return callProperty("getReportParams", arg0, resultHandler, faultHandler) as AsyncToken;

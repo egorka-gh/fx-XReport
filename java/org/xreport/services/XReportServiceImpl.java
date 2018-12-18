@@ -26,6 +26,7 @@ import org.sansorm.internal.OrmWriter;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xreport.constants.Constants;
+import org.xreport.entities.ListItemInt;
 import org.xreport.entities.Parameter;
 import org.xreport.entities.Report;
 import org.xreport.entities.ReportResult;
@@ -131,6 +132,23 @@ public class XReportServiceImpl implements XReportService {
 			}
 		}.execute();		
 	}
+	
+	@Override
+	public List<ListItemInt> getListInt(String source, String sql) {
+		final String sSql=sql;
+		return new SqlClosure<List<ListItemInt>>(ConnectionFactory.getDataSource(source)) {
+			public List<ListItemInt> execute(Connection connection) {
+				try {
+					PreparedStatement pstmt = connection.prepareStatement(sSql);
+					return OrmElf.statementToList(pstmt, ListItemInt.class);
+				} catch (SQLException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}.execute();		
+	}
+
 
 	public List<ReportSchedule> getSchedule() {
 		return new SqlClosure<List<ReportSchedule>>(ConnectionFactory.getDataSource()) {

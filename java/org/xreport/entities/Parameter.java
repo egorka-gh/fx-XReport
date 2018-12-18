@@ -22,10 +22,10 @@ public class Parameter extends AbstractExternalizedBean{
     private String name;
 
     @Column(name="is_list")
-    private boolean isList;
+    private int listType;
 
     @Column(name="is_multi")
-    private boolean isMulti;
+    private int multiSelect;
 
     @Column(name="list_sql")
     private String listSql;
@@ -99,18 +99,6 @@ public class Parameter extends AbstractExternalizedBean{
 	public void setValString(String valString) {
 		this.valString = valString;
 	}
-	public boolean isList() {
-		return isList;
-	}
-	public void setList(boolean isList) {
-		this.isList = isList;
-	}
-	public boolean isMulti() {
-		return isMulti;
-	}
-	public void setMulti(boolean isMulti) {
-		this.isMulti = isMulti;
-	}
 	public String getListSql() {
 		return listSql;
 	}
@@ -122,6 +110,18 @@ public class Parameter extends AbstractExternalizedBean{
 	}
 	public void setKeepTime(boolean keepTime) {
 		this.keepTime = keepTime;
+	}
+	public int getListType() {
+		return listType;
+	}
+	public void setListType(int listType) {
+		this.listType = listType;
+	}
+	public int isMultiSelect() {
+		return multiSelect;
+	}
+	public void setMultiSelect(int multiSelect) {
+		this.multiSelect = multiSelect;
 	}
 	
 }

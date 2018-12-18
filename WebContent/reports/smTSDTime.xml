@@ -1,0 +1,126 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[    
+  SELECT dt,
+         hr,
+         processid,
+         processtype,
+         processtypename,
+         starttime,
+         endtime,
+         surname,
+         doctype,
+         docid,
+         locname,
+         cliname,
+         tm,
+         line_num,
+         qtt_num,
+         ROUND (AVG (tm) OVER (PARTITION BY dt), 2) avg_tm,
+         SUM (line_num) OVER (PARTITION BY dt) sum_line,
+         SUM (qtt_num) OVER (PARTITION BY dt) sum_qtt
+    FROM (  SELECT TRUNC (p.starttime) dt,
+                   TO_CHAR (p.starttime, 'HH24') hr,
+                   p.processid,
+                   p.processtype,
+                   (SELECT pt.title
+                      FROM ssprocesstypes pt
+                     WHERE pt.processtype = p.processtype)
+                      AS processtypename,
+                   p.starttime,
+                   p.endtime,
+                   st.surname,
+                   pd.doctype,
+                   pd.docid,
+                   NVL (l.shortname, l.name) locname,
+                   NVL (cl.shortname, cl.name) cliname,
+                   ROUND ( (p.endtime - p.starttime) * 24 * 60, 2) tm,
+                   COUNT (*) line_num,
+                   SUM (s.quantity) qtt_num
+              FROM supermag.smprocessheaderorcv p,
+                   supermag.smstaff st,
+                   supermag.smprocessdoccreateresult pd,
+                   supermag.smdocuments d,
+                   supermag.smstorelocations l,
+                   supermag.smclientinfo cl,
+                   supermag.smspec s
+             WHERE     p.processtype = 'ORCV'
+                   AND p.starttime BETWEEN TO_DATE (:pfrom, 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD')
+                   AND p.endtime IS NOT NULL
+                   AND st.id = p.terminaluser
+                   AND p.processid = pd.processid
+                   AND p.processtype = pd.processtype
+                   AND pd.doctype = d.doctype
+                   AND pd.docid = d.id
+                   AND l.id = d.locationto
+                   AND cl.id = d.clientindex
+                   AND s.doctype = d.doctype
+                   AND s.docid = d.id
+          GROUP BY TO_CHAR (p.starttime, 'DD.MM.YY'),
+                   TO_CHAR (p.starttime, 'HH24'),
+                   p.processid,
+                   p.processtype,
+                   3,
+                   p.starttime,
+                   p.endtime,
+                   st.surname,
+                   pd.doctype,
+                   pd.docid,
+                   NVL (l.shortname, l.name),
+                   NVL (cl.shortname, cl.name),
+                   ROUND ( (p.endtime - p.starttime) * 24 * 60, 2)
+          UNION ALL
+            SELECT TRUNC (p.starttime) dt,
+                   TO_CHAR (p.starttime, 'HH24') hr,
+                   p.processid,
+                   p.processtype,
+                   (SELECT pt.title
+                      FROM ssprocesstypes pt
+                     WHERE pt.processtype = p.processtype)
+                      AS processtypename,
+                   p.starttime,
+                   p.endtime,
+                   st.surname,
+                   p.doctype,
+                   p.docid,
+                   NVL (l.shortname, l.name) locname,
+                   NVL (lfrom.shortname, lfrom.name) cliname,
+                   ROUND ( (p.endtime - p.starttime) * 24 * 60, 2) tm,
+                   COUNT (*) line_num,
+                   SUM (s.quantity) qtt_num
+              FROM supermag.smprocessheaderiwfr p,
+                   supermag.smstaff st,
+                   supermag.smdocuments d,
+                   supermag.smstorelocations l,
+                   supermag.smstorelocations lfrom,
+                   supermag.smspec s
+             WHERE     p.processtype = 'IWFR'
+                   AND p.starttime BETWEEN TO_DATE (:pfrom, 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD')
+                   AND p.endtime IS NOT NULL
+                   AND st.id = p.terminaluser
+                   AND p.doctype = d.doctype
+                   AND p.docid = d.id
+                   AND l.id = d.locationto
+                   AND lfrom.id = d.locationfrom
+                   AND s.doctype = d.doctype
+                   AND s.docid = d.id
+          GROUP BY TO_CHAR (p.starttime, 'DD.MM.YY'),
+                   TO_CHAR (p.starttime, 'HH24'),
+                   p.processid,
+                   p.processtype,
+                   3,
+                   p.starttime,
+                   p.endtime,
+                   st.surname,
+                   p.doctype,
+                   p.docid,
+                   NVL (l.shortname, l.name),
+                   NVL (lfrom.shortname, lfrom.name),
+                   ROUND ( (p.endtime - p.starttime) * 24 * 60, 2)) t
+ORDER BY dt, hr, starttime
+    	]]>
+    </sql>
+  </element>
+
+</element-set>

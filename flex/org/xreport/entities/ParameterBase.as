@@ -19,10 +19,10 @@ package org.xreport.entities {
         }
 
         private var _id:String;
-        private var _isList:Boolean;
-        private var _isMulti:Boolean;
         private var _keepTime:Boolean;
         private var _listSql:String;
+        private var _listType:int;
+        private var _multiSelect:int;
         private var _name:String;
         private var _src_type:int;
         private var _valDate:Date;
@@ -50,6 +50,17 @@ package org.xreport.entities {
         }
         public function get listSql():String {
             return _listSql;
+        }
+
+        public function set listType(value:int):void {
+            _listType = value;
+        }
+        public function get listType():int {
+            return _listType;
+        }
+
+        public function set multiSelect(value:int):void {
+            _multiSelect = value;
         }
 
         public function set name(value:String):void {
@@ -104,10 +115,10 @@ package org.xreport.entities {
         public override function readExternal(input:IDataInput):void {
             super.readExternal(input);
             _id = input.readObject() as String;
-            _isList = input.readObject() as Boolean;
-            _isMulti = input.readObject() as Boolean;
             _keepTime = input.readObject() as Boolean;
             _listSql = input.readObject() as String;
+            _listType = input.readObject() as int;
+            _multiSelect = input.readObject() as int;
             _name = input.readObject() as String;
             _src_type = input.readObject() as int;
             _valDate = input.readObject() as Date;
@@ -120,10 +131,10 @@ package org.xreport.entities {
         public override function writeExternal(output:IDataOutput):void {
             super.writeExternal(output);
             output.writeObject((_id is IPropertyHolder) ? IPropertyHolder(_id).object : _id);
-            output.writeObject((_isList is IPropertyHolder) ? IPropertyHolder(_isList).object : _isList);
-            output.writeObject((_isMulti is IPropertyHolder) ? IPropertyHolder(_isMulti).object : _isMulti);
             output.writeObject((_keepTime is IPropertyHolder) ? IPropertyHolder(_keepTime).object : _keepTime);
             output.writeObject((_listSql is IPropertyHolder) ? IPropertyHolder(_listSql).object : _listSql);
+            output.writeObject((_listType is IPropertyHolder) ? IPropertyHolder(_listType).object : _listType);
+            output.writeObject((_multiSelect is IPropertyHolder) ? IPropertyHolder(_multiSelect).object : _multiSelect);
             output.writeObject((_name is IPropertyHolder) ? IPropertyHolder(_name).object : _name);
             output.writeObject((_src_type is IPropertyHolder) ? IPropertyHolder(_src_type).object : _src_type);
             output.writeObject((_valDate is IPropertyHolder) ? IPropertyHolder(_valDate).object : _valDate);
