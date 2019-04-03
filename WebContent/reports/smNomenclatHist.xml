@@ -1,0 +1,46 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+  SELECT cc.tree,
+         cc.name tree_name,
+         t.article,
+         c.name,
+         t.eventtime,
+         NVL (l.shortname, l.name) loc_name,
+         DECODE (operation, 1, 'Добавлен', 'Удален') operation,
+         sl.showlevel,
+         sl.showrequest,
+         NVL((SELECT 1
+               FROM smdocuments d, smcontracts co, smspecco s
+              WHERE     d.doctype = co.doctype
+                    AND d.id = co.id
+                    AND d.doctype = 'CO'
+                    AND d.docstate = 3
+                    AND co.contracttype = 0
+                    AND s.doctype = co.doctype
+                    AND s.docid = co.id
+                    AND s.article = c.article
+                    AND ROWNUM < 2), 0) cont
+    FROM (  SELECT TRUNC (mh.eventtime) eventtime, mh.article, mh.idmatrix, ml.storeloc, SUM (DECODE (mh.operation, 1, 1, -1)) operation
+              FROM smassortmatrixhist mh, smassortmatrixloc ml
+             WHERE     mh.eventtime BETWEEN TO_DATE (:pfrom, 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD') + 1
+                   AND mh.idmatrix = ml.idmatrix
+                   AND ml.storeloc NOT IN (3, 16)
+          GROUP BY TRUNC (mh.eventtime), mh.article, mh.idmatrix, ml.storeloc) t,
+         svcardname c,
+         sacardclass cc,
+         smstorelocations l,
+         smstocklevels sl
+   WHERE     t.operation != 0
+         AND c.article = t.article
+         AND c.idclass = cc.id
+         AND cc.tree LIKE :partclass || '%'
+         AND l.id = t.storeloc
+         AND sl.article(+) = t.article
+         AND sl.storeloc(+) = t.storeloc
+ORDER BY cc.tree, t.article, t.eventtime, NVL (l.shortname, l.name)
+	]]>
+    </sql>
+  </element>
+</element-set>

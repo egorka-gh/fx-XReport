@@ -35,7 +35,7 @@
 		<task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="30000"/>
 	</task:scheduled-tasks>
 
-<!-- <task:scheduled ref="scheduledReportRunner" method="checkShedule"  cron="0 0 * * * *"/> -->
+ <task:scheduled ref="scheduledReportRunner" method="checkShedule"  cron="0 0 1 * * *"/> 
 <!-- <task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="30000"/> -->
 	<task:scheduler id="myScheduler" pool-size="10"/>
 

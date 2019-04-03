@@ -11,7 +11,7 @@
   <element name="LoadLoc" before-report="1">
     <sql>
       <![CDATA[    
-        begin supermag.RepTools.LoadLoc(1, '12,13,30,34,47,51,56,65,69,72,75,89,90', null, null); end;
+        begin supermag.RepTools.LoadLoc(1, '12,13,30,34,47,51,56,65,69,72,75,89,90,100', null, null); end;
       ]]>
     </sql>
   </element>
@@ -85,7 +85,7 @@ ORDER BY ca.tree || ' ' || ca.name, c.shortname
       <![CDATA[
   SELECT s.id, s.name caption
     FROM smstorelocations s
-   WHERE s.id IN (12,13,30,34,47,51,56,65,69,72,75,89,90)
+   WHERE s.id IN (12,13,30,34,47,51,56,65,69,72,75,89,90,100)
 ORDER BY s.id
 	]]>
     </sql>

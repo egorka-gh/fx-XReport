@@ -1,0 +1,41 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+  SELECT c.article,
+         am_getarticlebarcodes (c.article) barcode,
+         c.name,
+         am_retprice(c.article, :ploc, TO_DATE (:pto, 'YYYY-MM-DD')) price, 
+         SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity) qttyin,
+         SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity)*am_retprice(c.article, :ploc, TO_DATE (:pto, 'YYYY-MM-DD')) sumin,
+         ROUND (SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity) * TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ') / 100,3) lostnorm,
+         ROUND (SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity) * TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ') / 100,3)*am_retprice(c.article, :ploc, TO_DATE (:pto, 'YYYY-MM-DD')) lostnormsum,
+         TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ') norm,
+         SUM (DECODE (d.opcode,  8, 1, 9, -1,  0) * s.quantity) lostinv,
+         SUM (DECODE (d.opcode,  8, 1, 9, -1,  0) * s.quantity)*am_retprice(c.article, :ploc, TO_DATE (:pto, 'YYYY-MM-DD')) lostinvsum,
+         ROUND (SUM (DECODE (d.opcode,  8, 1,  9, -1,  0) * s.quantity) * 100 / SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity), 2) norminv,
+         ROUND (SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity) * TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ') / 100,3)
+            - SUM (DECODE (d.opcode,  8, 1,  9, -1,  0) * s.quantity) difqtty,
+         (ROUND (SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity) * TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ') / 100,3)
+            - SUM (DECODE (d.opcode,  8, 1,  9, -1,  0) * s.quantity))*am_retprice(c.article, :ploc, TO_DATE (:pto, 'YYYY-MM-DD')) difsum,
+         TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ')
+            - ROUND (SUM (DECODE (d.opcode,  8, 1,  9, -1,  0) * s.quantity) * 100 / SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity), 2) difnorn
+    FROM supermag.smdocuments d, supermag.smspec s, supermag.smcardproperties p, supermag.svcardname c
+   WHERE     p.propid = 'losses'
+         AND p.article = c.article
+         AND d.doctype = s.doctype
+         AND :ploc = NVL (d.locationto, d.locationfrom)
+         AND d.id = s.docid
+         AND s.article = c.article
+         AND d.doctype IN ('WI', 'IW', 'WO')
+         AND d.opcode IN (0, 4, 8, 9)
+         --    AND d.userop IS NULL
+         AND d.docstate > 2
+         AND d.createdat BETWEEN TO_DATE (:pfrom, 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD')
+GROUP BY c.article, am_getarticlebarcodes (c.article), c.name, TO_NUMBER (p.propval, 'FM999D9999', 'NLS_NUMERIC_CHARACTERS = ''.,'' ')
+  HAVING SUM (DECODE (d.opcode,  0, 1,  4, 1,  0) * s.quantity) > 0
+	]]>
+    </sql>
+  </element>
+
+</element-set>

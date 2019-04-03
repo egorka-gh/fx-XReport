@@ -1,0 +1,90 @@
+<element-set>
+
+  <element name="preCalc" before-report="1">
+    <sql>
+      <![CDATA[
+BEGIN
+	DELETE FROM ttgoodsrequest;          
+	INSERT INTO ttgoodsrequest (storeloc, article, availq, subq)
+	     SELECT m.storeloc, supermag.classifier.gettreeprefix (ca.tree, 1) tree, COUNT (*) nom, COUNT (c4.article) pl
+	       FROM (SELECT DISTINCT m.storeloc, a.article
+	               FROM smcardmatrix a, smassortmatrixloc m
+	              WHERE m.idmatrix = a.idmatrix) m,
+	            sacardclass ca,
+	            smcard c,
+	            c4rstocklevels c4
+	      WHERE     m.article = c.article
+	            AND ca.id = c.idclass
+	            AND c.accepted = 1
+	            AND supermag.classifier.gettreeprefix (ca.tree, 1) IS NOT NULL
+	            AND c4.article(+) = m.article
+	            AND c4.storeloc(+) = m.storeloc
+	   GROUP BY m.storeloc, supermag.classifier.gettreeprefix (ca.tree, 1);
+	COMMIT;    
+END;
+            ]]>
+    </sql>
+  </element>
+
+  <element name="rprow">
+    <sql>
+      <![CDATA[
+SELECT (SELECT name
+          FROM sacardclass ca1
+         WHERE ca1.tree = ca.parent_tree)
+          parentname,
+       ca.name,
+       ca.tree
+  FROM amv_class_sorted ca
+ WHERE ca.tree_level = 2
+  	]]>
+    </sql>
+  </element>
+
+  <element name="rpcol">
+    <sql>
+      <![CDATA[
+  SELECT s.id, s.name caption
+    FROM smstorelocations s
+   WHERE s.id IN (13,47,51,56,65,69,72,75,90,100)
+ORDER BY s.id
+	]]>
+    </sql>
+  </element>
+
+  <element name="rpcoltot">
+    <sql>
+      <![CDATA[
+SELECT NVL( (SELECT SUM (ts.quantity) FROM ttremainsprod ts WHERE ts.storeloc = :rpcol.id), 0) sel,
+       NVL( (SELECT SUM (ts.primecost) FROM ttremainsprod ts WHERE ts.storeloc = :rpcol.id), 0) selsum,
+       NVL( (SELECT SUM (tr.quantity) FROM ttremains tr WHERE tr.storeloc = :rpcol.id ), 0) ost
+  FROM DUAL
+  	]]>
+    </sql>
+  </element>
+
+  <element name="rpcell">
+    <sql>
+      <![CDATA[
+SELECT SUM (t.availq) nom, SUM (t.subq) pl
+  FROM ttgoodsrequest t
+ WHERE t.storeloc = :rpcol.id AND t.article = :rprow.tree      
+    	]]>
+    </sql>
+  </element>
+
+    <element name="rpcellst">
+    <sql>
+      <![CDATA[
+SELECT NVL( (SELECT SUM (ts.quantity) FROM ttremainsprod ts, smcardassort am
+               WHERE ts.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND ts.article = am.article), 0) sel,
+       NVL( (SELECT SUM (ts.primecost) FROM ttremainsprod ts, smcardassort am
+               WHERE ts.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND ts.article = am.article), 0) selsum,        
+       NVL( (SELECT SUM (tr.quantity) FROM ttremains tr, smcardassort am
+               WHERE tr.storeloc = :rpcol.id AND am.idassort = :rprow.grpid AND tr.article = am.article), 0) ost
+  FROM DUAL
+    ]]>
+    </sql>
+  </element>
+
+</element-set>
