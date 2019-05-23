@@ -16,7 +16,7 @@ FROM ukmserver.trm_out_receipt_header r
   INNER JOIN ukmserver.trm_out_receipt_discounts rd ON rd.cash_id = r.cash_id
     AND rd.receipt_header = r.id
     AND rd.id = rid.receipt_discount
-    AND rd.discount_type IN (65,94,97)
+    AND rd.discount_type IN (65,94,97,106,107,108)
 WHERE f.result = 0
 AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
 AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)

@@ -1,0 +1,42 @@
+<element-set>
+
+  <element name="rptype">
+    <sql>
+      <![CDATA[
+    SELECT sl.storeloc,
+         cc2.tree,
+         cc2.tree || ' ' || cc2.name clname0,
+         cc.tree || ' ' || cc.name clname,
+         ct.turnover,
+         sl.article,
+         c.shortname,
+         sl.salerate,
+         sl.showlevel,
+         c4.showlevel showlevelsp,
+         c4.xfacings,
+         c4.shelfs,
+         am_calcaltshowlevel (ct.turnover, sl.salerate) showlevel2,
+         am_calcspshowlevel (ct.turnover, sl.salerate, c4.showlevel, c4.xfacings, c4.shelfs) showlevel3
+    FROM smstocklevels sl,
+         (SELECT DISTINCT a.article
+            FROM smassortmatrixloc m, smcardmatrix a
+           WHERE m.idmatrix = a.idmatrix AND m.storeloc = :ploc) cm,
+         smcard c,
+         sacardclass cc,
+         sacardclass cc2,
+         amclassturnover ct,
+         c4rstocklevels c4
+   WHERE     sl.storeloc = :ploc
+         AND cm.article = sl.article
+         AND c.article = sl.article
+         AND c.idclass = cc.id
+         AND cc.tree LIKE cc2.tree || '%'
+         AND c.accepted = 1
+         AND cc2.id = ct.classid
+         AND c4.storeloc(+) = sl.storeloc
+         AND c4.article(+) = sl.article
+ORDER BY sl.storeloc, cc2.tree, cc.id, sl.article
+	]]>
+    </sql>
+  </element>
+</element-set>
