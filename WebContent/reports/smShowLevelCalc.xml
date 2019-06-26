@@ -3,7 +3,7 @@
   <element name="rptype">
     <sql>
       <![CDATA[
-    SELECT sl.storeloc,
+  SELECT sl.storeloc,
          cc2.tree,
          cc2.tree || ' ' || cc2.name clname0,
          cc.tree || ' ' || cc.name clname,
@@ -15,8 +15,9 @@
          c4.showlevel showlevelsp,
          c4.xfacings,
          c4.shelfs,
-         am_calcaltshowlevel (ct.turnover, sl.salerate) showlevel2,
-         am_calcspshowlevel (ct.turnover, sl.salerate, c4.showlevel, c4.xfacings, c4.shelfs) showlevel3
+         smgetcardpropasnumber (sl.article, 'SP_Coef') sp_coef,
+         am_calcaltshowlevel (ct.turnover, sl.salerate, c.idmeasurement) showlevel2,
+         am_calcspshowlevel (ct.turnover, sl.salerate, c4.showlevel, c4.xfacings, c4.shelfs, smgetcardpropasnumber (sl.article, 'SP_Coef')) showlevel3
     FROM smstocklevels sl,
          (SELECT DISTINCT a.article
             FROM smassortmatrixloc m, smcardmatrix a
@@ -35,8 +36,7 @@
          AND cc2.id = ct.classid
          AND c4.storeloc(+) = sl.storeloc
          AND c4.article(+) = sl.article
-ORDER BY sl.storeloc, cc2.tree, cc.id, sl.article
-	]]>
+ORDER BY sl.storeloc, cc2.tree, cc.id, sl.article	]]>
     </sql>
   </element>
 </element-set>

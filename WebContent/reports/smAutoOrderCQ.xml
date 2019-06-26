@@ -45,4 +45,15 @@ ORDER BY 1, 2, 3
 	]]>
     </sql>
   </element>
+
+  <element name="rpcol">
+    <sql>
+      <![CDATA[
+SELECT NVL (l.shortname, l.name) name
+  FROM smcontractlocations cl, smstorelocations l
+ WHERE cl.doctype = 'CQ' AND cl.id = :rpbody.doccq AND cl.locationid = l.id	
+ 	]]>
+    </sql>
+  </element>
+  
 </element-set>
