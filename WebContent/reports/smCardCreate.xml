@@ -1,0 +1,26 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[
+  SELECT ca.tree || ' ' || ca.name classname,
+         c.article,
+         c.name,
+         (SELECT  cl.name
+            FROM svspecpriceco co, smclientinfo cl
+           WHERE co.article = c.article AND co.contracttype = 0 AND co.docstate = 3 AND cl.id = co.clientindex AND ROWNUM < 2)
+            supp
+    FROM supermag.svcardname c, sacardclass ca
+   WHERE     c.accepted = 1
+         AND ca.id = c.idclass
+         AND EXISTS
+                (SELECT 1
+                   FROM smcardsecuritylog sl
+                  WHERE     sl.article = c.article
+                        AND sl.actioncode = 3
+                        AND sl.eventtime BETWEEN TO_DATE (:pfrom, 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD')+1)
+ORDER BY 1, 2
+	]]>
+    </sql>
+  </element>
+
+</element-set>

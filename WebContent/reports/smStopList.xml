@@ -1,0 +1,89 @@
+<element-set>
+
+  <element name="FillTemp" before-report="1">
+    <sql>
+      <![CDATA[    
+BEGIN
+   DELETE FROM ttsuppstop;
+
+   INSERT INTO ttsuppstop (eventtime, idclient, stop)
+        SELECT t.eventtime, t.idclient, NVL (t.paramvalue, '0') paramvalue
+          FROM (SELECT TRUNC (cl.eventtime) eventtime,
+                       cl.idclient,
+                       cl.paramvalue,
+                       RANK () OVER (PARTITION BY cl.eventtime, cl.idclient ORDER BY cl.recid DESC) AS myrank
+                  FROM smclientlog cl
+                 WHERE cl.eventtime BETWEEN TO_DATE ( :pfrom , 'YYYY-MM-DD') AND TO_DATE (:pto, 'YYYY-MM-DD') + 1 AND cl.paramname = 'СтопЛист') t
+         WHERE t.myrank = 1
+      ORDER BY t.idclient, t.eventtime;
+
+   INSERT INTO ttsuppstop (eventtime, idclient, stop)
+      SELECT TO_DATE ( :pfrom , 'YYYY-MM-DD'), cl.idclient, cl.paramvalue
+        FROM smclientlog cl
+       WHERE     cl.recid IN (  SELECT MAX (cll.recid)
+                                  FROM smclientlog cll
+                                 WHERE cll.paramname = 'СтопЛист' AND cll.eventtime < TO_DATE ( :pfrom , 'YYYY-MM-DD')
+                              GROUP BY cll.idclient)
+             AND cl.paramvalue = '1'
+             AND NOT EXISTS
+                    (SELECT 1
+                       FROM ttsuppstop t
+                      WHERE t.eventtime = TO_DATE ( :pfrom , 'YYYY-MM-DD') AND t.idclient = cl.idclient);
+END;
+      ]]>
+    </sql>
+  </element>
+
+
+  <element name="rpdays">
+    <sql>
+      <![CDATA[
+	SELECT (TO_DATE ( :pTo , 'YYYY-MM-DD') - TO_DATE ( :pFrom , 'YYYY-MM-DD') + 1) days, TO_CHAR (TO_DATE ( :pFrom , 'YYYY-MM-DD'), 'DD.MM.YYYY') || ' по ' || TO_CHAR (TO_DATE ( :pTo , 'YYYY-MM-DD'), 'DD.MM.YYYY') speriod  FROM DUAL
+ 	]]>
+    </sql>
+  </element>
+
+  <element name="rprow">
+    <sql>
+      <![CDATA[
+  SELECT tt.idclient, NVL (cl.shortname, cl.name) name, SUM (GREATEST(tt.stopto - tt.stopfrom, 1)) days, SUM (GREATEST(tt.stopto - tt.stopfrom, 1))/(TO_DATE ( :pTo , 'YYYY-MM-DD') - TO_DATE ( :pFrom , 'YYYY-MM-DD') + 1) daysprc
+    FROM (  SELECT t.idclient,
+                   t.eventtime stopfrom,
+                   NVL ( (SELECT MIN (t2.eventtime)
+                            FROM ttsuppstop t2
+                           WHERE t2.idclient = t.idclient AND t2.eventtime >= t.eventtime AND t2.stop = '0'),
+                        TO_DATE ( :pTo , 'YYYY-MM-DD') + 1)
+                      stopto
+              FROM ttsuppstop t
+             WHERE t.stop = '1'
+          ORDER BY t.idclient, t.eventtime) tt,
+         smclientinfo cl
+   WHERE tt.idclient = cl.id
+GROUP BY tt.idclient, NVL (cl.shortname, cl.name)
+ORDER BY 2
+ 	]]>
+    </sql>
+  </element>
+
+  <element name="rpsubrow">
+    <sql>
+      <![CDATA[
+ SELECT tt.idclient, tt.stopfrom, tt.stopto, GREATEST(tt.stopto - tt.stopfrom, 1) days
+    FROM (  SELECT t.idclient,
+                   t.eventtime stopfrom,
+                   NVL ( (SELECT MIN (t2.eventtime)
+                            FROM ttsuppstop t2
+                           WHERE t2.idclient = t.idclient AND t2.eventtime >= t.eventtime AND t2.stop = '0'),
+                        TO_DATE ( :pTo , 'YYYY-MM-DD') + 1)
+                      stopto
+              FROM ttsuppstop t
+             WHERE t.stop = '1'
+          ORDER BY t.idclient, t.eventtime) tt
+   WHERE tt.idclient = :rprow.idclient
+ORDER BY 2
+ 	]]>
+    </sql>
+  </element>
+
+
+</element-set>
