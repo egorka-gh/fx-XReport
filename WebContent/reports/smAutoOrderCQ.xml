@@ -8,12 +8,13 @@
            WHERE i.id = t.clientindex)
             clientname,
          t.docco,
-         DECODE (t.contracttype,  0, 'основной',  1, 'дополнительный',  2, 'маркетинговый') type,
+         DECODE (t.contracttype,  0, 'основной',  1, 'дополнительный',  2, 'маркетинговый') TYPE,
          t.id doccq,
          utils.transferdays (t.deliverydays) AS deliverydays,
          t.orderfreq,
          DECODE (smgetdocprop ('CO', t.docco, 'CustomLabels.RC', '0'), 1, 'РЦ', 'ТО') rc,
-         smgetdocprop ('CO', t.docco, 'CustomLabels.наименование товара', '') good
+         smgetdocprop ('CO', t.docco, 'CustomLabels.наименование товара', '') good,
+         DECODE (smgetdocprop ('CO', t.docco, 'CustomLabels.автозаказ', ''), 1, 'Да', 'Нет') autoorder
     FROM (SELECT d.id,
                  d.doctype,
                  d.clientindex,
@@ -29,18 +30,9 @@
            WHERE     d.doctype = 'CQ'
                  AND d.docstate = 2
                  AND c.id = d.id
+                 AND c.contracttype = 0
                  AND c.doctype = d.doctype
-                 AND (c.endsat >= TRUNC (SYSDATE) OR c.endsat IS NULL)
-                 AND EXISTS
-                        (SELECT 1
-                           FROM smcommonbases b, smdocprops dp
-                          WHERE     b.basedoctype = 'CO'
-                                AND b.doctype = d.doctype
-                                AND b.id = d.id
-                                AND dp.docid = b.baseid
-                                AND dp.doctype = b.basedoctype
-                                AND dp.paramname = 'CustomLabels.автозаказ'
-                                AND dp.paramvalue = '1')) t
+                 AND (c.endsat >= TRUNC (SYSDATE) OR c.endsat IS NULL)) t
 ORDER BY 1, 2, 3
 	]]>
     </sql>

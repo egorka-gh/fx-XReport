@@ -23,10 +23,10 @@
 		]]>
 	</fx:Script>
 	
-	<s:HGroup gap="5" horizontalAlign="left" verticalAlign="middle">
+	<s:HGroup gap="5" horizontalAlign="left" verticalAlign="middle" width="100%">
 		<s:Label text="{param.name}"/>
 		<s:Spacer width="5"/>
-		<s:TextInput id="tiValue" text="@{param.valString}" width="150"/>
+		<s:TextInput id="tiValue" text="@{param.valString}" minWidth="200" width="100%"/>
 	</s:HGroup>
 	
 </s:ItemRenderer>

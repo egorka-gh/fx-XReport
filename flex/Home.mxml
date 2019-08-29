@@ -200,7 +200,7 @@
         <!--<s:Label id="lMessage" color="#ff0000" maxDisplayedLines="-1" width="100%"/>-->
 		<s:HGroup height="100%" width="100%">
 			<s:List id="lstReports" dataProvider="{reportLst}" labelField="name" change="{getParamLst()}"
-					height="100%" width="200"/>
+					height="100%" width="300"/>
 			<s:Scroller height="100%" width="100%">
 				<s:Group>
 					<s:Group visible="{paramLst!=null}">
@@ -212,9 +212,9 @@
 								<s:SolidColorStroke color="0"/>
 							</s:stroke>
 						</s:Rect>
-						<s:VGroup gap="10" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10">
+						<s:VGroup gap="10" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" minWidth="400">
 							<s:Label text="Параметры отчета" fontWeight="bold"/>
-							<s:DataGroup dataProvider="{paramLst}" itemRendererFunction="paramRenderer">
+							<s:DataGroup dataProvider="{paramLst}" itemRendererFunction="paramRenderer" width="100%">
 								<s:layout>
 									<s:VerticalLayout gap="5"/>
 								</s:layout>

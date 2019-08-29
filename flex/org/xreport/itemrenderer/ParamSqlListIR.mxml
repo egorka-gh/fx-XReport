@@ -75,7 +75,7 @@
 	<s:HGroup gap="5" horizontalAlign="left" verticalAlign="middle" width="100%">
 		<s:Label text="{param.name}"/>
 		<s:Spacer width="5"/>
-		<s:DropDownList id="ddChoise" dataProvider="{itemLst}" labelField="label" change="ddChoise_changeHandler(event)" width="250"/>
+		<s:DropDownList id="ddChoise" dataProvider="{itemLst}" labelField="label" change="ddChoise_changeHandler(event)" minWidth="250" width="100%"/>
 	</s:HGroup>
 	
 </s:ItemRenderer>
