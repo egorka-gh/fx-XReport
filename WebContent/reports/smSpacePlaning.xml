@@ -1,0 +1,26 @@
+<element-set>
+
+  <element name="rptype">
+    <sql>
+      <![CDATA[
+  SELECT NVL (l.shortname, SUBSTR (TRIM (REPLACE (l.name, '.', ' ')), 1, 15)) loc,
+         cc.tree,
+         cc.name treename,
+         c4.article,
+         c.name,
+         c4.showlevel,
+         c4.shelfs,
+         c4.xfacings,
+         NVL ( (SELECT 1
+                  FROM smcardmatrix a, smassortmatrixloc m
+                 WHERE m.idmatrix = a.idmatrix AND m.storeloc = l.id AND a.article = c4.article),
+              0)
+            nm,
+         DECODE (c.accepted, 1, 1, 0) accepted
+    FROM c4rstocklevels c4, smstorelocations l, svcardname c, sacardclass cc
+   WHERE c4.storeloc = l.id AND c.article = c4.article AND cc.id = c.idclass
+ORDER BY NVL (l.shortname, SUBSTR (TRIM (REPLACE (l.name, '.', ' ')), 1, 15)), cc.tree
+		]]>
+    </sql>
+  </element>
+</element-set>
