@@ -1,0 +1,25 @@
+<element-set>
+
+  <element name="rptype">
+    <sql>
+      <![CDATA[
+  SELECT NVL (l.shortname, l.name) loc, a.article, c.name
+    FROM smcardmatrix a, smassortmatrixloc m, smstorelocations l, svcardname c
+   WHERE     m.idmatrix = a.idmatrix
+         AND m.storeloc = l.id
+         AND m.storeloc NOT IN (3, 12, 109)
+         AND c.article = a.article
+         AND c.datatype NOT IN (5)
+         AND NOT EXISTS
+                (SELECT 1
+                   FROM svcurrentspeccq q
+                  WHERE q.article = a.article AND q.locationid = m.storeloc)
+         AND NOT EXISTS
+                (SELECT 1
+                   FROM smcardproperties p
+                  WHERE p.article = a.article AND p.propid in ('ekon_si','Exclusion'))
+ORDER BY l.id, a.article
+		]]>
+    </sql>
+  </element>
+</element-set>

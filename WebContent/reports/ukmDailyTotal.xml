@@ -11,7 +11,7 @@
         INNER JOIN ukmserver.trm_in_store tis ON tis.store_id = tip.store_id
         INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
       WHERE f.result = 0
-        AND tip.store_id NOT IN (13004,1115001,1115002)
+        AND tip.store_id NOT IN (13004,1115001,1115002,1120001,1122001)
       GROUP BY tis.name
     UNION ALL
     SELECT tis.name store, tis.store_id, COUNT(*) chk, SUM(s.amount * IF(r.type IN (1, 4, 9), -1, 1)) tot, SUM(s.discounts_amount * IF(r.type IN (1, 4, 9), 1, -1)) dsc,
@@ -25,7 +25,7 @@
         INNER JOIN ukmserver.trm_in_store tis ON tis.store_id = tip.store_id
         INNER JOIN ukmserver.trm_out_receipt_subtotal s ON s.cash_id = r.cash_id AND s.id = r.id
       WHERE f.result = 0
-        AND tip.store_id IN (13004,1115001,1115002)
+        AND tip.store_id IN (13004,1115001,1115002,1120001,1122001)
       GROUP BY tis.name
       	]]>
     </sql>

@@ -4,8 +4,8 @@
     <sql>
       <![CDATA[
   SELECT NVL (l.shortname, SUBSTR (TRIM (REPLACE (l.name, '.', ' ')), 1, 15)) loc,
-         cc.tree,
-         cc.name treename,
+         classifier.gettreeprefix (cc.tree, 1) tree,
+         classifier.gettitlebypath (classifier.gettreeprefix (cc.tree, 1), 'SACARDCLASS') treename,
          c4.article,
          c.name,
          c4.showlevel,
@@ -19,7 +19,7 @@
          DECODE (c.accepted, 1, 1, 0) accepted
     FROM c4rstocklevels c4, smstorelocations l, svcardname c, sacardclass cc
    WHERE c4.storeloc = l.id AND c.article = c4.article AND cc.id = c.idclass
-ORDER BY NVL (l.shortname, SUBSTR (TRIM (REPLACE (l.name, '.', ' ')), 1, 15)), cc.tree
+ORDER BY NVL (l.shortname, SUBSTR (TRIM (REPLACE (l.name, '.', ' ')), 1, 15)), classifier.gettreeprefix (cc.tree, 1)
 		]]>
     </sql>
   </element>
