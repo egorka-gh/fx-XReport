@@ -16,7 +16,7 @@
          c4.xfacings,
          c4.shelfs,
          smgetcardpropasnumber (sl.article, 'SP_Coef') sp_coef,
-         am_calcaltshowlevel (ct.turnover, sl.salerate, c.idmeasurement) showlevel2,
+         am_calcaltshowlevel (ct.turnover, sl.salerate, c.idmeasurement, smgetcardpropasnumber (sl.article, 'SP_Coef')) showlevel2,
          am_calcspshowlevel (ct.turnover, sl.salerate, c4.showlevel, c4.xfacings, c4.shelfs, smgetcardpropasnumber (sl.article, 'SP_Coef')) showlevel3
     FROM smstocklevels sl,
          (SELECT DISTINCT a.article

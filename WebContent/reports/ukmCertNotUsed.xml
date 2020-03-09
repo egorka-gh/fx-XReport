@@ -1,0 +1,23 @@
+<element-set>
+  <element name="rpBody">
+    <sql>
+      <![CDATA[    
+SELECT at.name acType,
+  ac.name acName,
+  tc.nominal,
+  acs.date_from,
+  acs.date_to
+  FROM ukmserver.trm_in_account_type_certificates tc
+    INNER JOIN ukmserver.trm_in_account_type at ON tc.id = at.id
+    INNER JOIN ukmserver.local_auth_account ac ON ac.account_type_id = at.id
+    INNER JOIN ukmserver.local_auth_certificate_account acs ON ac.id = acs.account_id
+  WHERE acs.date_to BETWEEN STR_TO_DATE(:pFrom, '%Y-%m-%d') AND DATE_ADD(STR_TO_DATE(:pTo, '%Y-%m-%d'), INTERVAL 1 DAY)
+    AND NOT EXISTS (SELECT 1
+        FROM ukmserver.local_auth_account_journal aj
+        WHERE ac.id = aj.account_id
+          AND aj.amount < 0)
+	]]>
+    </sql>
+  </element>
+  
+</element-set>
