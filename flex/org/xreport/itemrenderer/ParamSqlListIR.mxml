@@ -40,7 +40,8 @@
 				if(!param || !param.listSql) return;
 				//var xReportService:XReportService=tideContext.xReportService;
 				var xReportService:XReportService=tideContext.byType(XReportService) as XReportService;
-				var source:Source=tideContext.source;
+				//var source:Source=tideContext.source;
+				var source:Source=(parentDocument as Home).source;
 				if(xReportService && source) xReportService.getListInt(source.id,param.listSql, onList, onFault)
 			}
 			private function onList(event:TideResultEvent):void {

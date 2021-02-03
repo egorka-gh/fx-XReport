@@ -1,0 +1,17 @@
+<element-set>
+
+  <element name="rptype">
+    <sql>
+      <![CDATA[
+  SELECT c.article,
+         c.name,
+         classifier.gettreeprefix (cc.tree, 1) tree,
+         classifier.gettitlebypath (classifier.gettreeprefix (cc.tree, 1), 'SACARDCLASS') treename,
+         cp.propval
+    FROM svcardname c, sacardclass cc, smcardproperties cp
+   WHERE cp.propid = 'SP_Coef' AND cp.article = c.article AND cc.id = c.idclass AND c.accepted = 1
+ORDER BY classifier.gettreeprefix (cc.tree, 1)
+		]]>
+    </sql>
+  </element>
+</element-set>

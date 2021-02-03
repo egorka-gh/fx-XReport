@@ -38,7 +38,8 @@
 				if(!tideContext) return;
 				//var xReportService:XReportService=tideContext.xReportService;
 				var xReportService:XReportService=tideContext.byType(XReportService) as XReportService;
-				var source:Source=tideContext.source;
+				//var source:Source=tideContext.source;
+				var source:Source=(parentDocument as Home).source;
 				if(xReportService && source) xReportService.getStores(source.id, onList, onFault)
 			}
 			private function onList(event:TideResultEvent):void {

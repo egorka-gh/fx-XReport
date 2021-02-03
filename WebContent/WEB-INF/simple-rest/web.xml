@@ -7,10 +7,6 @@
 
 	<description>XReport Application Description</description>
 	<display-name>XReport Application</display-name>
-	<context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>/WEB-INF/spring/app-*-config.xml</param-value>
-    </context-param>
     
     <!-- report output folder -->
     <context-param>
@@ -19,13 +15,7 @@
 	</context-param>
 	
     <!-- Spring listeners -->
-    <listener>
-        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-    </listener>
-    <listener>
-        <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
-    </listener>
-	
+
 	<!-- create result folder 4 session -->
 	<listener>
 	    <description>sessionListener</description>
@@ -34,16 +24,6 @@
 	    </listener-class>
 	</listener>	
 	
-    <!-- Spring MVC dispatcher servlet that handles incoming AMF requests on the /graniteamf endpoint --> 
-	<servlet>
-	    <servlet-name>dispatcher</servlet-name>
-	    <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-	    <load-on-startup>1</load-on-startup>
-	</servlet>	
-	<servlet-mapping>
-	    <servlet-name>dispatcher</servlet-name>
-	    <url-pattern>/graniteamf/*</url-pattern>
-	</servlet-mapping>
 
     <!-- Spring MVC dispatcher servlet that handles incoming json requests on the /api endpoint --> 
 	<servlet>
@@ -54,7 +34,7 @@
 		
 	<servlet-mapping>
 	    <servlet-name>rest-dispatcher</servlet-name>
-	    <url-pattern>/api/*</url-pattern>
+	    <url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 	
 	<context-param>
@@ -62,29 +42,10 @@
 		<param-value>/WEB-INF/rest-dispatcher-servlet.xml</param-value>
 	</context-param>
 	
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
 	
-	<!--
-	Load configuration files and setup this application.
-	-->
-	<listener>
-		<listener-class>org.granite.config.GraniteConfigListener</listener-class>
-	</listener>
-	
-	<!--
-	Gravity asynchronous (Comet) servlet. Must be used with a valid installation and configuration
-	(APR for Tomcat and JBoss).
-	-->
-    <servlet>
-        <servlet-name>GravityServlet</servlet-name>
-        <servlet-class>org.granite.gravity.servlet3.GravityAsyncServlet</servlet-class>	
-        <load-on-startup>1</load-on-startup>
-        <async-supported>true</async-supported>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>GravityServlet</servlet-name>
-        <url-pattern>/gravityamf/*</url-pattern>
-    </servlet-mapping>
-
 	<!--
 	data sources see META-INF
 	-->

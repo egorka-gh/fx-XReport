@@ -2,7 +2,7 @@
   <element name="rpbody">
     <sql>
       <![CDATA[
-SELECT tis.name store, rd.name dsname, CONCAT_WS(' ',tic.id, tic.name) classif,  ri.item, ri.name, ri.price,
+SELECT tis.name store, date(r.date) dt, rd.name dsname, CONCAT_WS(' ',tic.id, tic.name) classif,  ri.item, ri.name, ri.price,
   SUM(ri.quantity * IF(r.type IN (1, 4, 9), -1, 1)) qtt, 
   SUM(ri.total * IF(r.type IN (1, 4, 9), -1, 1)) tot_nodsc, 
   SUM(ri.discount * IF(r.type IN (1, 4, 9), 1, -1)) dsc
@@ -16,12 +16,12 @@ FROM ukmserver.trm_out_receipt_header r
   INNER JOIN ukmserver.trm_out_receipt_discounts rd ON rd.cash_id = r.cash_id
     AND rd.receipt_header = r.id
     AND rd.id = rid.receipt_discount
-    AND rd.discount_type IN (65,94,97,106,107,108)
+    AND rd.discount_type IN (65,94,97,106,107,108,212,213,214)
 WHERE f.result = 0
 AND f.`date` >= STR_TO_DATE( :pFrom , '%Y-%m-%d')
 AND f.`date` < DATE_ADD(STR_TO_DATE( :pTo , '%Y-%m-%d'),INTERVAL 1 DAY)
-GROUP BY tis.name , rd.name, CONCAT_WS(' ',tic.id, tic.name),  ri.item, ri.name
-ORDER BY tis.name , rd.name, CONCAT_WS(' ',tic.id, tic.name),  ri.item, ri.name
+GROUP BY tis.name, date(r.date), rd.name, CONCAT_WS(' ',tic.id, tic.name),  ri.item, ri.name
+ORDER BY tis.name, date(r.date), rd.name, CONCAT_WS(' ',tic.id, tic.name),  ri.item, ri.name
 	]]>
     </sql>
   </element>

@@ -1,0 +1,37 @@
+<element-set>
+  <element name="rpbody">
+    <sql>
+      <![CDATA[    
+SELECT tis.name, date(sc.date) dtsale, SUM(IF(srp.payment_id = 0, 1, 0) * (srp.sale_ukm - srp.return_ukm)) nal,
+  SUM(IF(srp.payment_id = 0, 0, 1) * (srp.sale_ukm - srp.return_ukm)) bnal,
+  SUM((srp.sale_ukm - srp.return_ukm)) tot,
+  SUM(IF(srp.payment_id = 0, 1, 0) *(sr.receipts_sale_ukm - sr.receipts_return_kkm)) chk
+  FROM trm_out_shift_close sc
+    INNER JOIN trm_out_shift_result_payments srp ON sc.cash_id = srp.cash_id AND sc.id = srp.id
+    INNER JOIN trm_out_shift_result sr ON sc.cash_id = sr.cash_id AND sc.id = sr.id
+    INNER JOIN ukmserver.trm_in_pos tip ON tip.cash_id = sc.cash_id
+    INNER JOIN ukmserver.trm_in_store tis ON tip.store_id = tis.store_id
+  WHERE sc.date >= STR_TO_DATE(:pFrom, '%Y-%m-%d')
+    AND sc.date < DATE_ADD(STR_TO_DATE(:pTo, '%Y-%m-%d'), INTERVAL 1 DAY)
+    AND NOT (tis.store_id = 1119001 AND srp.payment_id = 7)
+    AND NOT (tis.store_id = 13001 AND srp.payment_id = 13)
+    AND tis.store_id NOT IN ( 13006)
+  GROUP BY tis.name, date(sc.date)
+  	]]>
+    </sql>
+  </element>
+  <element name="rpops">
+    <sql>
+      <![CDATA[    
+SELECT tis.name, date(mo.date) dtop,  SUM(IF(mo.type = 100, -1, 1) * mo.amount) total
+  FROM ukmserver.trm_out_moneyoperation mo
+    INNER JOIN ukmserver.trm_in_pos pos ON pos.cash_id = mo.cash_id
+    INNER JOIN ukmserver.trm_in_store tis ON pos.store_id = tis.store_id
+  WHERE mo.date >= STR_TO_DATE(:pFrom, '%Y-%m-%d') AND mo.date < DATE_ADD(STR_TO_DATE(:pTo, '%Y-%m-%d'), INTERVAL 1 DAY)
+   AND tis.store_id NOT IN ( 13006)
+  GROUP BY tis.name, date(mo.date)
+	]]>
+    </sql>
+  </element>
+
+</element-set>

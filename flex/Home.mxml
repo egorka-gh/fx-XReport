@@ -15,6 +15,7 @@
 			import mx.collections.ArrayCollection;
 			import mx.controls.Alert;
 			
+			import org.granite.tide.Tide;
 			import org.granite.tide.events.TideFaultEvent;
 			import org.granite.tide.events.TideResultEvent;
 			import org.xreport.entities.Parameter;
@@ -50,6 +51,11 @@
 
 			[Bindable]
 			public var stList:ArrayCollection;
+			
+			public function init():void{
+				xReportService=Tide.getInstance().getContext().byType(XReportService,true) as XReportService;
+				getSourceLst();
+			}
 
 			private function getSourceLst():void {
 				xReportService.getSources(onSourceLst, helloFault)
@@ -130,7 +136,7 @@
 					Alert.show(result.error);
 				}
 				if(result.url){
-					var urlRequest:URLRequest = new URLRequest(result.url);
+					var urlRequest:URLRequest = new URLRequest('http://apache:8080/XReport/'+result.url);
 					navigateToURL(urlRequest,'_new');
 				}
 			}
@@ -195,7 +201,8 @@
 		paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" >
 		<s:HGroup gap="5" verticalAlign="baseline">
 			<s:Label text="Источник"/>
-			<s:DropDownList id="ddSource" dataProvider="{sourceLst}" labelField="name" creationComplete="{getSourceLst()}" change="ddSource_changeHandler(event)"/>
+			<s:DropDownList id="ddSource" dataProvider="{sourceLst}" labelField="name" 
+							creationComplete="{getSourceLst()}" change="ddSource_changeHandler(event)"/>
 		</s:HGroup>
         <!--<s:Label id="lMessage" color="#ff0000" maxDisplayedLines="-1" width="100%"/>-->
 		<s:HGroup height="100%" width="100%">

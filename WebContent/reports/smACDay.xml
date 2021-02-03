@@ -1,0 +1,162 @@
+<element-set>
+
+  <element name="rphead">
+    <sql>
+      <![CDATA[
+SELECT l.name locname, l.shortname locsname, pt.name pricetype,
+	TO_CHAR (TO_DATE (:pdate, 'YYYY-MM-DD'), 'DDMMYYYY') || l.shortname doc,
+	TO_DATE (:pdate, 'YYYY-MM-DD') docdate
+  FROM supermag.smstorelocations l, supermag.smlocprices prt, supermag.smpricetypes pt
+ WHERE l.id = :ploc AND prt.locid = l.id AND BITAND (prt.flags, 2) = 2 AND pt.id = prt.pricetype          
+    	]]>
+    </sql>
+  </element>
+
+  <element name="rpdocs">
+    <sql>
+      <![CDATA[
+SELECT r.title reason,
+       (SELECT    o.typename
+               || ' '
+               || NVL (DECODE (b.basedoctype,
+                               'WI', (SELECT wi.supplierdoc || ' (' || b.baseid || ')'
+                                        FROM supermag.smwaybillsin wi
+                                       WHERE wi.doctype = b.basedoctype AND wi.id = b.baseid),
+                               (SELECT p.paramvalue || ' (' || b.baseid || ')'
+                                  FROM supermag.smdocprops p
+                                 WHERE p.doctype = b.basedoctype AND p.docid = b.baseid AND p.paramname = 'CustomLabels.User.PaperTTNNumber')),
+                       b.baseid)
+                  AS docnum
+          FROM supermag.smcommonbases b, supermag.ssobjecttypes o
+         WHERE b.doctype = d.doctype AND b.id = d.id AND b.basedoctype NOT IN ('AC') AND b.basedoctype = o.objtype AND ROWNUM < 2)
+          basedoc
+  FROM supermag.smdocuments d, supermag.smacts a, supermag.smpricetypes prctp, supermag.bm_acreason r
+ WHERE     d.doctype = 'AC'
+       AND d.docstate = 3
+       AND d.location = :ploc
+       AND d.createdat = TO_DATE (:pdate, 'YYYY-MM-DD')
+       AND d.doctype = a.doctype
+       AND d.id = a.id
+       AND a.pricetype = prctp.id
+       AND r.id = a.reason
+       AND NOT EXISTS
+              (SELECT 1
+                 FROM supermag.smdocprops p
+                WHERE p.doctype = d.doctype AND p.docid = d.id AND p.paramname = 'CustomLabels.not_export' AND p.paramvalue = '1')
+    	]]>
+    </sql>
+  </element>
+
+  <element name="rpbody">
+    <sql>
+      <![CDATA[    
+  SELECT ROW_NUMBER() OVER (ORDER BY d.id, s.specitem) row_num,
+  		 c.name cardname,
+         c.mesabbrev,
+         s.quantity,
+         sa.oldprice,
+         ROUND (sa.oldprice * s.quantity,2) oldsum,
+         s.itemprice AS newprice,
+         ROUND (s.itemprice * s.quantity,2) newsum,
+         ROUND(s.itemprice * s.quantity - sa.oldprice * s.quantity,2) diff,
+         ROUND ( (s.itemprice * s.quantity - sa.oldprice * s.quantity) * (1 - 1 / (1 + supermag.smgettaxfromarticle (s.article, 0, 13) / 100)), 2)
+            diffnds,
+           ROUND(s.itemprice * s.quantity - sa.oldprice * s.quantity,2)
+         - ROUND ( (s.itemprice * s.quantity - sa.oldprice * s.quantity) * (1 - 1 / (1 + supermag.smgettaxfromarticle (s.article, 0, 13) / 100)), 2)
+            diffreval,
+         supermag.smgettaxfromarticle (s.article, 0, 13) AS cardnds,
+         s.article,
+         (SELECT    o.typename
+                 || ' '
+                 || NVL (DECODE (b.basedoctype,
+                                 'WI', (SELECT wi.supplierdoc || ' (' || b.baseid || ')'
+                                          FROM supermag.smwaybillsin wi
+                                         WHERE wi.doctype = b.basedoctype AND wi.id = b.baseid),
+                                 (SELECT p.paramvalue || ' (' || b.baseid || ')'
+                                    FROM supermag.smdocprops p
+                                   WHERE p.doctype = b.basedoctype AND p.docid = b.baseid AND p.paramname = 'CustomLabels.User.PaperTTNNumber')),
+                         b.baseid)
+                    AS docnum
+            FROM supermag.smcommonbases b, supermag.ssobjecttypes o
+           WHERE b.doctype = d.doctype AND b.id = d.id AND b.basedoctype NOT IN ('AC') AND b.basedoctype = o.objtype AND ROWNUM < 2)
+            basedoc
+    FROM supermag.smdocuments d, supermag.smacts a, supermag.smspec s, supermag.smspecacts sa, supermag.svcardname c
+   WHERE     d.doctype = 'AC'
+         AND d.docstate = 3
+         AND d.location = :ploc
+         AND NOT EXISTS
+                (SELECT 1
+                   FROM supermag.smdocprops p
+                  WHERE p.doctype = d.doctype AND p.docid = d.id AND p.paramname = 'CustomLabels.not_export' AND p.paramvalue = '1')
+         AND d.doctype = a.doctype
+         AND d.id = a.id
+         AND a.exectime >= TO_DATE (:pdate, 'YYYY-MM-DD')
+         AND a.exectime < TO_DATE (:pdate, 'YYYY-MM-DD') + 1
+         AND s.doctype = d.doctype
+         AND s.docid = d.id
+         AND sa.docid = s.docid
+         AND sa.doctype = s.doctype
+         AND sa.specitem = s.specitem
+         AND c.article = s.article
+         AND s.quantity > 0
+         AND NOT EXISTS
+                (SELECT 1
+                   FROM supermag.sacardclass cc
+                  WHERE cc.id = c.idclass AND cc.tree LIKE '300.%')         
+ORDER BY d.id, s.specitem
+    	]]>
+    </sql>
+  </element>
+
+  <element name="rptotal">
+    <sql>
+      <![CDATA[    
+SELECT COUNT (*) cnt,
+       SUM (ROUND (sa.oldprice * s.quantity, 2)) oldsum,
+       SUM (ROUND (s.itemprice * s.quantity, 2)) newsum,
+       SUM (ROUND (s.itemprice * s.quantity - sa.oldprice * s.quantity, 2)) diff,
+       SUM
+       (
+          ROUND ( (s.itemprice * s.quantity - sa.oldprice * s.quantity) * (1 - 1 / (1 + supermag.smgettaxfromarticle (s.article, 0, 13) / 100)), 2)
+       )
+          diffnds,
+       SUM
+       (
+            ROUND (s.itemprice * s.quantity - sa.oldprice * s.quantity, 2)
+          - ROUND ( (s.itemprice * s.quantity - sa.oldprice * s.quantity) * (1 - 1 / (1 + supermag.smgettaxfromarticle (s.article, 0, 13) / 100)), 2)
+       )
+          diffreval,
+       russianspell.getsumrub
+       (
+          SUM (ROUND (s.itemprice * s.quantity - sa.oldprice * s.quantity, 2)),
+          0,
+          5
+       )
+          spell
+  FROM supermag.smdocuments d, supermag.smacts a, supermag.smspec s, supermag.smspecacts sa
+ WHERE     d.doctype = 'AC'
+       AND d.docstate = 3
+       AND d.location = :ploc
+       AND NOT EXISTS
+              (SELECT 1
+                 FROM supermag.smdocprops p
+                WHERE p.doctype = d.doctype AND p.docid = d.id AND p.paramname = 'CustomLabels.not_export' AND p.paramvalue = '1')
+         AND d.doctype = a.doctype
+         AND d.id = a.id
+         AND a.exectime >= TO_DATE (:pdate, 'YYYY-MM-DD')
+         AND a.exectime < TO_DATE (:pdate, 'YYYY-MM-DD') + 1
+       AND s.doctype = d.doctype
+       AND s.docid = d.id
+       AND sa.docid = s.docid
+       AND sa.doctype = s.doctype
+       AND sa.specitem = s.specitem
+       AND s.quantity > 0
+       AND NOT EXISTS
+              (SELECT 1
+                 FROM supermag.smcard c, supermag.sacardclass cc
+                WHERE c.article = s.article AND cc.id = c.idclass AND cc.tree LIKE '300.%')
+    	]]>
+    </sql>
+  </element>
+
+</element-set>

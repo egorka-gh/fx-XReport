@@ -4,39 +4,27 @@
     xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
     xmlns:task="http://www.springframework.org/schema/task"
     xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
 
 
     <!-- Annotation scan -->
     <context:component-scan base-package="org.xreport.services"/>
+    <!--  <mvc:annotation-driven /> -->  
   
     <!-- Spring MVC configuration -->
     <bean class="org.springframework.web.servlet.mvc.annotation.DefaultAnnotationHandlerMapping"/>
-    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
-
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	</bean>
     
     <!-- Configuration of Spring 3 Bean Validation 
     <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
     -->
     
-    <bean id="scheduledReportRunner" class="org.xreport.services.ScheduledReportRunner">
-  		<property name="smtpHost" value="192.168.30.12" /> 
-  		<property name="smtpDomain" value="bigzz" /> 
-  		<property name="smtpUser" value="yesterday" /> 
-  		<property name="smtpPwd" value="12345" /> 
-  		<property name="smtpFrom" value="yesterday@bigzz.by" /> 
-	</bean>
-    
-    <task:scheduled-tasks scheduler="myScheduler">
-		<task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="30000"/>
-	</task:scheduled-tasks>
-
- <task:scheduled ref="scheduledReportRunner" method="checkShedule"  cron="0 0 1 * * *"/> 
-<!-- <task:scheduled ref="scheduledReportRunner" method="checkShedule" fixed-rate="30000"/> -->
-	<task:scheduler id="myScheduler" pool-size="10"/>
 
 </beans>

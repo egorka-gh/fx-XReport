@@ -42,11 +42,12 @@
 		         aj.cash_id,
 		         aj.source_id) t
 		  LEFT OUTER JOIN ukmserver.trm_out_receipt_header chh ON chh.cash_id = t.cash_id AND chh.id = t.source_id
+		  LEFT OUTER JOIN ukmserver.trm_out_receipt_footer f ON f.cash_id = chh.cash_id AND f.id = chh.id
 		  LEFT OUTER JOIN ukmserver.trm_out_shift_open chz ON chh.cash_id = chz.cash_id AND chh.shift_open = chz.id
 		  LEFT OUTER JOIN ukmserver.trm_in_pos tip ON chh.cash_id = tip.cash_id
 		  LEFT OUTER JOIN ukmserver.trm_in_store tis ON tip.store_id = tis.store_id,
           ( SELECT @rownum ::=0 ) r
-		WHERE t.amount != 0
+		WHERE t.amount != 0 AND f.result = 0
 		ORDER BY 1, 2
 	]]>
     </sql>
