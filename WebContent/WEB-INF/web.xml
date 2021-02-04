@@ -57,10 +57,12 @@
 	    <url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
 	
+	<!--
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>/WEB-INF/rest-dispatcher-servlet.xml</param-value>
 	</context-param>
+	-->
 	
 	
 	<!--

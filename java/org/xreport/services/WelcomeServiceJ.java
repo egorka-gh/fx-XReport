@@ -1,4 +1,4 @@
-package org.xreport.rest;
+package org.xreport.services;
 
 import java.util.Date;
 import java.text.SimpleDateFormat;
