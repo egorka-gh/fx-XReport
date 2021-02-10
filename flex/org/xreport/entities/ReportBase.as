@@ -22,6 +22,7 @@ package org.xreport.entities {
         private var _name:String;
         private var _parameters:Array;
         private var _src_type:int;
+        private var _userUID:String;
 
         public function set id(value:String):void {
             _id = value;
@@ -51,12 +52,20 @@ package org.xreport.entities {
             return _src_type;
         }
 
+        public function set userUID(value:String):void {
+            _userUID = value;
+        }
+        public function get userUID():String {
+            return _userUID;
+        }
+
         public override function readExternal(input:IDataInput):void {
             super.readExternal(input);
             _id = input.readObject() as String;
             _name = input.readObject() as String;
             _parameters = input.readObject() as Array;
             _src_type = input.readObject() as int;
+            _userUID = input.readObject() as String;
         }
 
         public override function writeExternal(output:IDataOutput):void {
@@ -65,6 +74,7 @@ package org.xreport.entities {
             output.writeObject((_name is IPropertyHolder) ? IPropertyHolder(_name).object : _name);
             output.writeObject((_parameters is IPropertyHolder) ? IPropertyHolder(_parameters).object : _parameters);
             output.writeObject((_src_type is IPropertyHolder) ? IPropertyHolder(_src_type).object : _src_type);
+            output.writeObject((_userUID is IPropertyHolder) ? IPropertyHolder(_userUID).object : _userUID);
         }
     }
 }

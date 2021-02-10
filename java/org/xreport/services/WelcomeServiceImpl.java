@@ -5,15 +5,6 @@ import java.util.List;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 
-import javax.persistence.Query;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.NoResultException;
-
-import org.granite.tide.data.DataEnabled;
-import org.granite.tide.data.DataEnabled.PublishMode;
-
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

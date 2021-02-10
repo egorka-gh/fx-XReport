@@ -10,9 +10,13 @@ import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -23,7 +27,12 @@ import org.sansorm.OrmElf;
 import org.sansorm.SqlClosure;
 import org.sansorm.SqlClosureElf;
 import org.sansorm.internal.OrmWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.ServletConfigAware;
+import org.springframework.web.context.ServletContextAware;
 import org.w3c.dom.Document;
 import org.xreport.constants.Constants;
 import org.xreport.entities.ListItemInt;
@@ -35,6 +44,7 @@ import org.xreport.entities.Source;
 import org.xreport.entities.SourceType;
 import org.xreport.entities.UkmStore;
 import org.xreport.util.ConnectionFactory;
+import org.xreport.util.FileUtil;
 import org.xreport.util.ValueDistributorImpl;
 
 import com.reporter.XlsReporter;
@@ -42,7 +52,21 @@ import com.reporter.document.XLSDocumentWriter;
 
 
 @Service("xReportService")
-public class XReportServiceImpl implements XReportService {
+public class XReportServiceImpl implements XReportService, ServletContextAware   { //, ApplicationContextAware
+
+	private static ServletContext context;
+
+	public void setServletContext(ServletContext servletContext) {
+		XReportServiceImpl.context = servletContext;
+	}
+
+	/*
+	private static ApplicationContext appCtx;
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+    	XReportServiceImpl.appCtx = applicationContext;
+    }
+    */
 
 	//private Connection conn;
 	/*
@@ -187,19 +211,72 @@ public class XReportServiceImpl implements XReportService {
 		}
 	}
 	
+	@Autowired
+	ServletContext servletContext;
+	@Autowired
+	ApplicationContext  appContext;
+	
 	@Override
 	public ReportResult buildReport(final Report report, String source){
-		HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
-
-		String reportPath = ctx.getServletContext().getRealPath("/");
+		//HttpGraniteContext ctx = (HttpGraniteContext)GraniteContext.getCurrentInstance();
+		//appContext = XReportServiceImpl.appCtx;
+		
+		String reportPath = context.getRealPath("/");
 		reportPath+="/"+Constants.REPORTS_FOLDER+"/";
 
-		String outPath=(String) ctx.getServletContext().getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);
-		
-		String outURL = (String) ctx.getServletContext().getAttribute(Constants.SESSION_ID_ATTRIBUTE);
+		/*
+		String outPath=(String) context.getAttribute(Constants.OUT_FOLDER_SESSION_ATTRIBUTE);
+		String outURL = (String) context.getAttribute(Constants.SESSION_ID_ATTRIBUTE);
 		outURL=Constants.URL_REPORT_BASE_URL+"/"+outURL+"/";
+		*/
+		String suffix=outSuffix(report);
+		String outPath=context.getInitParameter(Constants.OUT_FOLDER_INIT_PARAMETER)+"/"+suffix+"/";
+		String outURL=Constants.URL_REPORT_BASE_URL+"/"+suffix+"/";
+		//clean output
+		cleanupOutput();
+		//create result folder
+		new File(outPath).mkdirs();
 
 		return buildInternal(report,source,"", reportPath, outPath, outURL);
+	}
+	
+	protected String outSuffix(Report report){
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String date = dateFormat.format(new Date());
+		String uid = "";
+		if (report!=null && report.getUserUID()!=null && !report.getUserUID().isEmpty()){
+			uid=report.getUserUID();
+		}
+		if(uid.isEmpty() && context!=null){
+			String session = (String) context.getAttribute(Constants.SESSION_ID_ATTRIBUTE);
+			if(session!=null && !session.isEmpty()){
+				uid=session;
+			}
+		}
+		if(uid.isEmpty()){
+			uid = UUID.randomUUID().toString();
+		}
+		return date+"/"+uid;
+	}
+
+	protected void cleanupOutput(){
+		if(context==null) return;
+		String outPath=context.getInitParameter(Constants.OUT_FOLDER_INIT_PARAMETER);
+		if(outPath==null || outPath.isEmpty()) return;
+		File dir = new File(outPath);
+		if(!dir.exists()) return;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		String date = dateFormat.format(new Date());
+		File[] files = dir.listFiles();
+		for (File f : files ){
+			if(f.isDirectory() && !f.getName().equals(date)){
+				try{
+					FileUtil.RemoveDir(f.getAbsolutePath());
+				}catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+		}
 	}
 
 	public ReportResult buildLocal(String reportId, String source, String outSuffix, String reportPath, String outPath) {

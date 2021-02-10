@@ -1,6 +1,7 @@
 package org.xreport.entities;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Id;
@@ -32,6 +33,9 @@ public class Parameter extends AbstractExternalizedBean{
 
     @Transient
     private boolean keepTime;
+
+    @Transient
+    private List<ListItemInt> itemsInt;
 
     @Transient
     private Date valFrom;
@@ -122,6 +126,12 @@ public class Parameter extends AbstractExternalizedBean{
 	}
 	public void setMultiSelect(int multiSelect) {
 		this.multiSelect = multiSelect;
+	}
+	public List<ListItemInt> getItemsInt() {
+		return itemsInt;
+	}
+	public void setItemsInt(List<ListItemInt> itemsInt) {
+		this.itemsInt = itemsInt;
 	}
 	
 }

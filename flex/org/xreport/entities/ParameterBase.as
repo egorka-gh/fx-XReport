@@ -9,6 +9,7 @@ package org.xreport.entities {
 
     import flash.utils.IDataInput;
     import flash.utils.IDataOutput;
+    import mx.collections.ListCollectionView;
     import org.granite.tide.IPropertyHolder;
 
     [Bindable]
@@ -19,6 +20,7 @@ package org.xreport.entities {
         }
 
         private var _id:String;
+        private var _itemsInt:ListCollectionView;
         private var _keepTime:Boolean;
         private var _listSql:String;
         private var _listType:int;
@@ -36,6 +38,13 @@ package org.xreport.entities {
         }
         public function get id():String {
             return _id;
+        }
+
+        public function set itemsInt(value:ListCollectionView):void {
+            _itemsInt = value;
+        }
+        public function get itemsInt():ListCollectionView {
+            return _itemsInt;
         }
 
         public function set keepTime(value:Boolean):void {
@@ -115,6 +124,7 @@ package org.xreport.entities {
         public override function readExternal(input:IDataInput):void {
             super.readExternal(input);
             _id = input.readObject() as String;
+            _itemsInt = input.readObject() as ListCollectionView;
             _keepTime = input.readObject() as Boolean;
             _listSql = input.readObject() as String;
             _listType = input.readObject() as int;
@@ -131,6 +141,7 @@ package org.xreport.entities {
         public override function writeExternal(output:IDataOutput):void {
             super.writeExternal(output);
             output.writeObject((_id is IPropertyHolder) ? IPropertyHolder(_id).object : _id);
+            output.writeObject((_itemsInt is IPropertyHolder) ? IPropertyHolder(_itemsInt).object : _itemsInt);
             output.writeObject((_keepTime is IPropertyHolder) ? IPropertyHolder(_keepTime).object : _keepTime);
             output.writeObject((_listSql is IPropertyHolder) ? IPropertyHolder(_listSql).object : _listSql);
             output.writeObject((_listType is IPropertyHolder) ? IPropertyHolder(_listType).object : _listType);

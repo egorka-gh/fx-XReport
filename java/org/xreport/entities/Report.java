@@ -20,6 +20,9 @@ public class Report extends AbstractExternalizedBean {
     private String name;
     
     @Transient
+    private String userUID;
+
+    @Transient
     private Parameter[] parameters;
     
 	public String getId() {
@@ -48,6 +51,12 @@ public class Report extends AbstractExternalizedBean {
 	}
 	public void setParameters(Parameter[] parameters) {
 		this.parameters = parameters;
+	}
+	public String getUserUID() {
+		return userUID;
+	}
+	public void setUserUID(String userUID) {
+		this.userUID = userUID;
 	}
 	
 	

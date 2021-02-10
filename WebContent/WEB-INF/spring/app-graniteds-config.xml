@@ -9,7 +9,7 @@
         http://www.graniteds.org/config http://www.graniteds.org/public/dtd/2.3.0/granite-config-2.3.xsd">
 
     <!-- Configuration of GraniteDS -->
-    <graniteds:flex-filter url-pattern="/*" tide="true"/>
+    <graniteds:flex-filter url-pattern="*" tide="true"/>
     
     <!-- Simple messaging destination for data push -->
     <graniteds:messaging-destination id="welcomeTopic" no-local="true" session-selector="true"/>
