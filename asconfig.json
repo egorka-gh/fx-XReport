@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"output": "WebContent/XReport.swf",
+		"accessible": true,
+		"source-path": [
+			"flex"
+		],
+		"library-path": [
+			"lib"
+		]
+	},
+	"files": [
+		"flex/XReport.mxml"
+	],
+	"copySourcePathAssets": true,
+	"htmlTemplate": "html-template",
+	"additionalOptions": "-locale en_US       -include-libraries ../lib/granite-essentials.swc"
+}
