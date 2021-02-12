@@ -32,10 +32,14 @@ public class XReportServiceJ {
 		return s.getSources();
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value="/report/{source-type}")
-	public @ResponseBody List<Report> getReports(@PathVariable("source-type") final int sourceType){
+	@RequestMapping(method = RequestMethod.GET, value="/report/{source-type}/{source}")
+	public @ResponseBody List<Report> getReports(@PathVariable("source-type") final int sourceType, @PathVariable("source") final String source){
 		XReportServiceImpl s = new XReportServiceImpl();
-		return s.getReports(sourceType);
+		List<Report> reports =s.getReports(sourceType);
+		for (Report r : reports){
+			r.setParameters(getReportParams(r.getId(),source));
+		}
+		return reports;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value="/report/params/{report}/{source}")
