@@ -14,19 +14,36 @@
       </v-col>
     </v-row>
     <div class="text-right">
-      <v-btn color="blue-grey" large class="ma-2 white--text">
+      <v-btn
+        v-if="report.engine != 1"
+        color="blue-grey"
+        large
+        class="ma-2 white--text"
+        @click="$emit('run', 'html')"
+      >
         <span style="display: inline-block; margin-right: 10px;"> Html </span>
         <v-icon right large>
           mdi-file-table-outline
         </v-icon>
       </v-btn>
-      <v-btn color="blue-grey" class="ma-2 white--text" large>
+      <v-btn
+        v-if="report.engine != 1"
+        color="blue-grey"
+        class="ma-2 white--text"
+        large
+        @click="$emit('run', 'pdf')"
+      >
         <span style="display: inline-block; margin-right: 10px;"> pdf </span>
         <v-icon right large>
           mdi-file-pdf-outline
         </v-icon>
       </v-btn>
-      <v-btn color="blue-grey" class="ma-2 white--text" large>
+      <v-btn
+        color="blue-grey"
+        class="ma-2 white--text"
+        large
+        @click="$emit('run', 'xls')"
+      >
         <span style="display: inline-block; margin-right: 10px;">xls</span>
         <v-icon right large>
           mdi-table-multiple

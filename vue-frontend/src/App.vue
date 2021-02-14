@@ -3,13 +3,22 @@
     <!-- Sizes your content based upon application components -->
     <v-main>
       <!-- Provides the application the proper gutter -->
-      <v-container fluid fill-height>
+      <v-container fluid class="mt-5">
         <!-- If using vue-router -->
         <v-row justify="center">
           <v-card elevation="16" width="400px" height="100%" class="pa-2">
+            <v-select
+              class="mx-2"
+              v-model="source"
+              :items="sources"
+              item-text="name"
+              item-value="id"
+              label="Источник"
+            ></v-select>
+            <div class="text-h6">Отчеты</div>
             <v-virtual-scroll
               :bench="benched"
-              :items="items"
+              :items="reports"
               item-height="64"
               fill-height
               height="600"
@@ -30,31 +39,174 @@
             </v-virtual-scroll>
           </v-card>
           <v-card elevation="16" width="700px" class="pa-2">
-            <ReportRunner v-if="report" v-bind:report="report"></ReportRunner>
+            <ReportRunner
+              v-if="report"
+              v-bind:report="report"
+              v-on:run="runReport"
+            ></ReportRunner>
           </v-card>
+          <v-overlay :value="busy">
+            <p>{{ reptype }}</p>
+            <v-progress-circular indeterminate size="64"></v-progress-circular>
+          </v-overlay>
         </v-row>
+        <div>{{ uid }}</div>
+        <div>{{ hasError }}</div>
+        <div>{{ errorText }}</div>
+        <div>{{ sources }}</div>
         {{ report }}
       </v-container>
+      <v-snackbar v-model="hasError">
+        {{ errorText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn color="pink" text v-bind="attrs" @click="hasError = false">
+            Закрыть
+          </v-btn>
+        </template>
+      </v-snackbar>
     </v-main>
   </v-app>
 </template>
 
 <script>
 import ReportRunner from "./components/ReportRunner.vue";
+import { repApi } from "./api-common";
+
 export default {
   name: "App",
 
   components: { ReportRunner },
-
+  created: function() {
+    //create client uid
+    if (!this.uid) {
+      this.generateUUID();
+    }
+    //call remote api
+    //this.sources = this.fakeSources;
+    this.loadSorces();
+    if (this.sources == null) {
+      this.sources = [];
+      return;
+    }
+    this.source = this.sources[0];
+  },
   data: () => ({
+    uid: "",
     benched: 0,
-    report: null
+    busy: false,
+    hasError: false,
+    errorText: "",
+    report: null,
+    reports: [],
+    source: "",
+    sources: [],
+    reptype: ""
   }),
+  methods: {
+    generateUUID() {
+      var d = new Date().getTime(); //Timestamp
+      var d2 =
+        (performance && performance.now && performance.now() * 1000) || 0; //Time in microseconds since page-load or 0 if unsupported
+      this.uid = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function(c) {
+          var r = Math.random() * 16; //random number between 0 and 16
+          if (d > 0) {
+            //Use timestamp until depleted
+            r = (d + r) % 16 | 0;
+            d = Math.floor(d / 16);
+          } else {
+            //Use microseconds since page-load if supported
+            r = (d2 + r) % 16 | 0;
+            d2 = Math.floor(d2 / 16);
+          }
+          return (c === "x" ? r : (r & 0x3) | 0x8).toString(16);
+        }
+      );
+    },
+    loadSorces() {
+      this.source = "";
+      this.sources = [];
+      this.hasError = false;
+      //this.busy = true;
+      repApi
+        .get("source")
+        .then(response => {
+          if (response != null && response.data != null) {
+            this.sources = response.data;
+          }
+          if (this.sources.length) this.source = this.sources[0];
+        })
+        .catch(error => {
+          this.hasError = true;
+          this.errorText = "Ошибка сервиса или сервис не доступен";
+          console.log(error);
+        });
+      //.finally(() => (this.busy = false));
+    },
+    loadReports() {
+      this.report = null;
+      this.reports = [];
+      this.hasError = false;
+      if (this.source == null) return;
+      repApi
+        .get(`report/${this.source.type}/${this.source.id}`)
+        .then(response => {
+          if (response != null && response.data != null) {
+            this.reports = response.data;
+          }
+        })
+        .catch(error => {
+          this.hasError = true;
+          this.errorText = "Ошибка сервиса или сервис не доступен";
+          console.log(error);
+        });
+    },
+    runReport(outputType) {
+      this.reptype = outputType;
+      //emulate api call
+      this.busy = true;
+      setTimeout(() => {
+        this.busy = false;
+      }, 3000);
+      //open report in new window
+    }
+  },
+  watch: {
+    source: function() {
+      /*
+      this.reports = [];
+      this.report = null;
+      //call remote api
+      this.reports = this.fakeReports;
+      */
+      this.loadReports();
+    }
+  },
   computed: {
     reportid() {
       return this.report ? this.report.id : "";
     },
-    items() {
+    fakeSources() {
+      return [
+        { persistState: 1, id: "ukmUKM4", type: 1, name: "UKM4" },
+        { persistState: 1, id: "smSMGAMA", type: 2, name: "С1" },
+        { persistState: 1, id: "smSKONTCO", type: 2, name: "ЦО" },
+        { persistState: 1, id: "smSKONT08", type: 2, name: "Г1" },
+        { persistState: 1, id: "smS6SM", type: 2, name: "C6" },
+        { persistState: 1, id: "smS5SM", type: 2, name: "C5" },
+        { persistState: 1, id: "smS4SM", type: 2, name: "C4" },
+        { persistState: 1, id: "smS2SM", type: 2, name: "C2" },
+        { persistState: 1, id: "smRC1SM", type: 2, name: "РЦ1" },
+        { persistState: 1, id: "smM1SM", type: 2, name: "М1" },
+        { persistState: 1, id: "smK4SM", type: 2, name: "K4" },
+        { persistState: 1, id: "smK1SM", type: 2, name: "К1" },
+        { persistState: 1, id: "smG2SM", type: 2, name: "K3" }
+      ];
+    },
+
+    fakeReports() {
       return [
         {
           persistState: 1,
