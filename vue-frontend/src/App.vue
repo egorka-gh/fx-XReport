@@ -50,11 +50,6 @@
             <v-progress-circular indeterminate size="64"></v-progress-circular>
           </v-overlay>
         </v-row>
-        <div>{{ uid }}</div>
-        <div>{{ hasError }}</div>
-        <div>{{ errorText }}</div>
-        <div>{{ sources }}</div>
-        {{ report }}
       </v-container>
       <v-snackbar v-model="hasError">
         {{ errorText }}
@@ -71,7 +66,7 @@
 
 <script>
 import ReportRunner from "./components/ReportRunner.vue";
-import { repApi } from "./api-common";
+import { repApi, baseURL } from "./api-common";
 
 export default {
   name: "App",
@@ -164,13 +159,66 @@ export default {
         });
     },
     runReport(outputType) {
+      if (this.report == null) return;
+      if (this.source == null) return;
+
+      //check params
+      let paramErr = false;
+      for (const p of this.report.parameters) {
+        //check dates
+        switch (p.id) {
+          case "period":
+          case "periodt":
+            paramErr = p.valFrom == null || p.valTo == null;
+            break;
+          case "pdate":
+            paramErr = p.valDate == null;
+            break;
+          default:
+            paramErr = p.id != "pkasir" && !p.valString;
+        }
+        if (paramErr) {
+          this.hasError = true;
+          this.errorText = "Указаны не все параметры отчета";
+          return;
+        }
+      }
+
+      this.hasError = false;
+      /*
       this.reptype = outputType;
       //emulate api call
       this.busy = true;
       setTimeout(() => {
         this.busy = false;
       }, 3000);
-      //open report in new window
+      */
+      this.busy = true;
+      repApi
+        .post(`report/build`, {
+          report: this.report,
+          source: this.source.id,
+          format: outputType
+        })
+        .then(response => {
+          if (response != null && response.data != null) {
+            const res = response.data;
+            if (res.hasError) {
+              this.hasError = true;
+              this.errorText = "Ошибка выполнения отчета";
+              console.log(res.error);
+              return;
+            }
+            //open report in new window
+            window.open(baseURL + res.url, "_blank");
+          }
+        })
+        .catch(error => {
+          this.hasError = true;
+          this.errorText = "Ошибка сервиса или сервис не доступен";
+          console.log(error);
+        })
+        .finally(() => (this.busy = false));
     }
   },
   watch: {
