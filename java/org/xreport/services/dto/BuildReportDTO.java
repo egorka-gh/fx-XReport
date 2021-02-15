@@ -5,6 +5,7 @@ import org.xreport.entities.Report;
 public class BuildReportDTO {
 	private Report report;
 	private String source;
+	private String format;
 	
 	public Report getReport() {
 		return report;
@@ -17,5 +18,11 @@ public class BuildReportDTO {
 	}
 	public void setSource(String source) {
 		this.source = source;
+	}
+	public String getFormat() {
+		return format;
+	}
+	public void setFormat(String format) {
+		this.format = format;
 	}
 }
