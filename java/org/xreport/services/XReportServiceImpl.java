@@ -366,7 +366,9 @@ public class XReportServiceImpl implements XReportService, ServletContextAware  
         try {
         	cnn=ConnectionFactory.getConnection(source);
         	//fill ValueDistributor
-        	ValueDistributorImpl vd = new ValueDistributorImpl(report.getParameters());
+        	Parameter[] params = null;
+        	if(report.getParameters() != null && !report.getParameters().isEmpty()) params= report.getParameters().toArray(new Parameter[0]);
+        	ValueDistributorImpl vd = new ValueDistributorImpl(params);
         	//build report
 			reporter.process(inputStream, outputStream, document,cnn, vd); 
         } catch (Exception e1) {

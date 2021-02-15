@@ -9,6 +9,7 @@ package org.xreport.entities {
 
     import flash.utils.IDataInput;
     import flash.utils.IDataOutput;
+    import mx.collections.ListCollectionView;
     import org.granite.tide.IPropertyHolder;
 
     [Bindable]
@@ -18,11 +19,19 @@ package org.xreport.entities {
             super();
         }
 
+        private var _engine:int;
         private var _id:String;
         private var _name:String;
-        private var _parameters:Array;
+        private var _parameters:ListCollectionView;
         private var _src_type:int;
         private var _userUID:String;
+
+        public function set engine(value:int):void {
+            _engine = value;
+        }
+        public function get engine():int {
+            return _engine;
+        }
 
         public function set id(value:String):void {
             _id = value;
@@ -38,10 +47,10 @@ package org.xreport.entities {
             return _name;
         }
 
-        public function set parameters(value:Array):void {
+        public function set parameters(value:ListCollectionView):void {
             _parameters = value;
         }
-        public function get parameters():Array {
+        public function get parameters():ListCollectionView {
             return _parameters;
         }
 
@@ -61,15 +70,17 @@ package org.xreport.entities {
 
         public override function readExternal(input:IDataInput):void {
             super.readExternal(input);
+            _engine = input.readObject() as int;
             _id = input.readObject() as String;
             _name = input.readObject() as String;
-            _parameters = input.readObject() as Array;
+            _parameters = input.readObject() as ListCollectionView;
             _src_type = input.readObject() as int;
             _userUID = input.readObject() as String;
         }
 
         public override function writeExternal(output:IDataOutput):void {
             super.writeExternal(output);
+            output.writeObject((_engine is IPropertyHolder) ? IPropertyHolder(_engine).object : _engine);
             output.writeObject((_id is IPropertyHolder) ? IPropertyHolder(_id).object : _id);
             output.writeObject((_name is IPropertyHolder) ? IPropertyHolder(_name).object : _name);
             output.writeObject((_parameters is IPropertyHolder) ? IPropertyHolder(_parameters).object : _parameters);

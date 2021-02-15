@@ -124,7 +124,7 @@
 				if (lstReports.selectedItem) rep=lstReports.selectedItem as Report;
 				if(!rep || !paramLst) return;
 				*/
-				curReport.parameters=paramLst.source;
+				curReport.parameters=paramLst;
 				curReport.isRunning=true;
 				xReportService.buildReport(curReport, src.id ,onBuildReport, onBuildReportFault)
 			}
